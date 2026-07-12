@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vinCi · Country Lifestyles</title>
+
+    <!-- ===== FAVICON (V) ===== -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-weight='900' font-family='system-ui, sans-serif' fill='%236C5CE7'>V</text></svg>" />
+
+    <!-- ===== FONTS & ICONS ===== -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- ===== jsPDF + html2canvas for PDF ===== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+    </script>
+
+    <style>
+        /* ============================================================
+               GLOBAL RESET & ROOT
+               ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #f8f9fe;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(255, 255, 255, 0.75);
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a4a6a;
+            --text-muted: #8888aa;
+            --accent: #6C5CE7;
+            --accent-light: #a29bfe;
+            --accent-dark: #4a3db8;
+            --shadow: 0 20px 60px rgba(108, 92, 231, 0.12);
+            --shadow-hover: 0 30px 80px rgba(108, 92, 231, 0.20);
+            --radius: 24px;
+            --radius-sm: 14px;
+            --transition: 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            --glass: rgba(255, 255, 255, 0.60);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .dark-mode {
+            --bg-primary: #0f0e1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: rgba(26, 26, 46, 0.80);
+            --text-primary: #f0eeff;
+            --text-secondary: #b8b0d8;
+            --text-muted: #6a6a8a;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.50);
+            --shadow-hover: 0 30px 80px rgba(108, 92, 231, 0.30);
+            --glass: rgba(26, 26, 46, 0.70);
+            --glass-border: rgba(255, 255, 255, 0.06);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background var(--transition), color var(--transition);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* ============================================================
+               SCROLLBAR
+               ============================================================ */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-light);
+            border-radius: 12px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* ============================================================
+               UTILITY
+               ============================================================ */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 28px;
+        }
+
+        .section-title {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.4rem;
+        }
+
+        .section-sub {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 2.8rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-decoration: none;
+            font-family: var(--font);
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(108, 92, 231, 0.30);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 16px 40px rgba(108, 92, 231, 0.40);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-primary);
+            box-shadow: none;
+            border: 2px solid var(--accent-light);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(108, 92, 231, 0.30);
+        }
+
+        .btn-sm {
+            padding: 8px 18px;
+            font-size: 0.82rem;
+        }
+
+        /* ============================================================
+               HEADER / NAV
+               ============================================================ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--glass);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 14px 0;
+            transition: background var(--transition);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: #fff;
+            font-size: 1.6rem;
+            font-weight: 900;
+            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.35);
+            transition: transform var(--transition);
+        }
+
+        .logo-icon:hover {
+            transform: rotate(-6deg) scale(1.04);
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .nav-actions .btn {
+            padding: 10px 22px;
+            font-size: 0.85rem;
+        }
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 60px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(12deg);
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            padding: 6px 16px 6px 12px;
+            border-radius: 60px;
+            border: 1px solid var(--glass-border);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .user-badge .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 60px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .user-badge .logout-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0 4px;
+            transition: color var(--transition);
+        }
+
+        .user-badge .logout-btn:hover {
+            color: #e74c3c;
+        }
+
+        /* ============================================================
+               HERO
+               ============================================================ */
+        .hero {
+            padding: 60px 0 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--accent), #fd79a8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 640px;
+            margin: 0 auto 36px;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .hero-stats .stat {
+            text-align: center;
+        }
+
+        .hero-stats .stat .num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .hero-stats .stat .label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ============================================================
+               COUNTRY GRID
+               ============================================================ */
+        .countries-section {
+            padding: 20px 0 60px;
+        }
+
+        .country-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 12px;
+        }
+
+        .country-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: var(--radius);
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .country-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .country-card .card-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s ease;
+        }
+
+        .country-card:hover .card-img {
+            transform: scale(1.04);
+        }
+
+        .country-card .card-body {
+            padding: 22px 24px 26px;
+        }
+
+        .country-card .card-body .flag {
+            font-size: 2.2rem;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .country-card .card-body h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .country-card .card-body .sub {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .country-card .card-tag {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 4px 14px;
+            border-radius: 60px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+        }
+
+        /* ============================================================
+               COUNTRY DETAIL MODAL
+               ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 36px 40px 40px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.40);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            animation: slideUp 0.35s ease;
+        }
+
+        .modal-close {
+            position: sticky;
+            top: 0;
+            float: right;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 60px;
+            width: 44px;
+            height: 44px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: all var(--transition);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+
+        .modal-close:hover {
+            background: var(--accent);
+            color: #fff;
+            transform: rotate(90deg);
+        }
+
+        .modal .country-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .modal .country-header .flag-big {
+            font-size: 3.6rem;
+            line-height: 1;
+        }
+
+        .modal .country-header h2 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .modal .country-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px 32px;
+            margin: 8px 0 20px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 18px;
+        }
+
+        .modal .country-meta span i {
+            margin-right: 6px;
+            color: var(--accent);
+            width: 18px;
+        }
+
+        .modal .tabs {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--glass-border);
+            margin-bottom: 24px;
+            padding-bottom: 0;
+        }
+
+        .modal .tabs button {
+            background: none;
+            border: none;
+            padding: 10px 22px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            transition: all var(--transition);
+            font-family: var(--font);
+            position: relative;
+        }
+
+        .modal .tabs button::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 6px;
+            transition: all var(--transition);
+            transform: translateX(-50%);
+        }
+
+        .modal .tabs button.active {
+            color: var(--accent);
+        }
+
+        .modal .tabs button.active::after {
+            width: 70%;
+        }
+
+        .modal .tabs button:hover {
+            color: var(--accent);
+        }
+
+        .modal .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .modal .tab-content.active {
+            display: block;
+        }
+
+        .modal .tab-content h4 {
+            color: var(--text-primary);
+            font-size: 1.15rem;
+            margin: 18px 0 8px;
+            font-weight: 700;
+        }
+
+        .modal .tab-content p {
+            margin-bottom: 14px;
+        }
+
+        .modal .tab-content ul {
+            padding-left: 22px;
+            margin-bottom: 14px;
+        }
+
+        .modal .tab-content ul li {
+            margin-bottom: 6px;
+        }
+
+        .modal .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            margin: 16px 0 8px;
+        }
+
+        .modal .gallery img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--glass-border);
+            transition: transform var(--transition);
+        }
+
+        .modal .gallery img:hover {
+            transform: scale(1.04);
+        }
+
+        .modal .pdf-actions {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        /* ============================================================
+               AUTH MODAL
+               ============================================================ */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .auth-overlay.active {
+            display: flex;
+        }
+
+        .auth-modal {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            max-width: 440px;
+            width: 100%;
+            padding: 40px 36px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.40);
+            border: 1px solid var(--glass-border);
+            animation: slideUp 0.35s ease;
+            position: relative;
+        }
+
+        .auth-modal .auth-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color var(--transition);
+        }
+
+        .auth-modal .auth-close:hover {
+            color: var(--text-primary);
+        }
+
+        .auth-modal .auth-logo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .auth-modal .auth-logo .logo-icon {
+            margin: 0 auto 10px;
+            width: 56px;
+            height: 56px;
+            font-size: 2rem;
+        }
+
+        .auth-modal .auth-logo h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .auth-modal .auth-logo p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .auth-modal .form-group {
+            margin-bottom: 18px;
+        }
+
+        .auth-modal .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            color: var(--text-secondary);
+        }
+
+        .auth-modal .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--glass-border);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: 0.95rem;
+            transition: border var(--transition);
+        }
+
+        .auth-modal .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.12);
+        }
+
+        .auth-modal .auth-toggle {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .auth-modal .auth-toggle button {
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font);
+            font-size: 0.9rem;
+        }
+
+        .auth-modal .auth-toggle button:hover {
+            text-decoration: underline;
+        }
+
+        .auth-modal .btn {
+            width: 100%;
+            justify-content: center;
+            padding: 14px;
+            font-size: 1rem;
+            margin-top: 6px;
+        }
+
+        .auth-modal .error-msg {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            margin-bottom: 14px;
+            display: none;
+        }
+
+        .dark-mode .auth-modal .error-msg {
+            background: #3b1c1c;
+            color: #fca5a5;
+        }
+
+        /* ============================================================
+               FOOTER
+               ============================================================ */
+        .footer {
+            padding: 40px 0 28px;
+            border-top: 1px solid var(--glass-border);
+            margin-top: 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .footer .footer-brand {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .footer .footer-brand span {
+            color: var(--accent);
+        }
+
+        /* ============================================================
+               ANIMATIONS
+               ============================================================ */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ============================================================
+               RESPONSIVE
+               ============================================================ */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.6rem;
+            }
+            .hero p {
+                font-size: 1.05rem;
+            }
+            .hero-stats {
+                gap: 24px;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .modal {
+                padding: 24px 20px;
+            }
+            .modal .country-header h2 {
+                font-size: 1.8rem;
+            }
+            .modal .tabs button {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+            .country-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 20px;
+            }
+            .header-inner {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-actions {
+                justify-content: center;
+            }
+            .logo {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .country-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .modal .gallery {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* ============================================================
+               PRINT / PDF STYLES (for html2canvas)
+               ============================================================ */
+        .pdf-export-content {
+            background: #fff;
+            color: #1a1a2e;
+            padding: 40px;
+            border-radius: 16px;
+            font-family: var(--font);
+        }
+        .pdf-export-content .pdf-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+        .pdf-export-content .pdf-sub {
+            color: #4a4a6a;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+        .pdf-export-content .pdf-section {
+            margin-bottom: 18px;
+        }
+        .pdf-export-content .pdf-section h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #6C5CE7;
+            margin-bottom: 4px;
+        }
+        .pdf-export-content .pdf-section p {
+            color: #2d2d44;
+            line-height: 1.7;
+        }
+        .pdf-export-content .pdf-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            color: #4a4a6a;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e8e8f0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ============================================================
+    HEADER
+    ============================================================ -->
+    <header class="header" id="mainHeader">
+        <div class="container header-inner">
+            <a href="#" class="logo" id="logoLink">
+                <span class="logo-icon">V</span>
+                <span>vinCi</span>
+            </a>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+
+                <div id="authButtons">
+                    <button class="btn btn-outline btn-sm" id="signInBtn">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                    <button class="btn btn-sm" id="signUpBtn">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </button>
+                </div>
+
+                <div id="userBadge" style="display:none;" class="user-badge">
+                    <span class="avatar" id="userAvatar">U</span>
+                    <span id="userName">User</span>
+                    <button class="logout-btn" id="logoutBtn" title="Sign out">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================
+    HERO
+    ============================================================ -->
+    <section class="hero">
+        <div class="container">
+            <h1>
+                Discover <span class="highlight">country lifestyles</span><br />
+                around the world
+            </h1>
+            <p>
+                Explore dating, housing, traditions, and everyday life across cultures.
+                Learn, compare, and download guides to take offline.
+            </p>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="num" id="countryCount">0</div>
+                    <div class="label">Countries</div>
+                </div>
+                <div class="stat">
+                    <div class="num">5</div>
+                    <div class="label">Categories</div>
+                </div>
+                <div class="stat">
+                    <div class="num">📥</div>
+                    <div class="label">PDF Ready</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    COUNTRY GRID
+    ============================================================ -->
+    <section class="countries-section" id="countriesSection">
+        <div class="container">
+            <h2 class="section-title">Explore Cultures</h2>
+            <p class="section-sub">Click any card to dive deep into a country's way of life.</p>
+            <div class="country-grid" id="countryGrid"></div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    COUNTRY DETAIL MODAL
+    ============================================================ -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal" id="detailModalContent">
+            <button class="modal-close" id="detailCloseBtn"><i class="fas fa-times"></i></button>
+
+            <div id="detailBody">
+                <!-- dynamically filled -->
+            </div>
+
+            <div class="pdf-actions">
+                <button class="btn" id="downloadPdfBtn">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </button>
+                <button class="btn btn-outline" id="viewTextBtn">
+                    <i class="fas fa-align-left"></i> View as Text
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    AUTH MODAL
+    ============================================================ -->
+    <div class="auth-overlay" id="authModal">
+        <div class="auth-modal">
+            <button class="auth-close" id="authCloseBtn"><i class="fas fa-times"></i></button>
+
+            <div class="auth-logo">
+                <div class="logo-icon" style="margin:0 auto 10px;">V</div>
+                <h3>vinCi</h3>
+                <p id="authToggleText">Sign in to save your preferences</p>
+            </div>
+
+            <div class="error-msg" id="authError"></div>
+
+            <form id="authForm" autocomplete="off">
+                <div class="form-group" id="nameGroup">
+                    <label for="authName">Full Name</label>
+                    <input type="text" id="authName" placeholder="Your name" />
+                </div>
+                <div class="form-group">
+                    <label for="authEmail">Email</label>
+                    <input type="email" id="authEmail" placeholder="you@example.com" required />
+                </div>
+                <div class="form-group">
+                    <label for="authPassword">Password</label>
+                    <input type="password" id="authPassword" placeholder="••••••••" required minlength="4" />
+                </div>
+                <button type="submit" class="btn" id="authSubmitBtn">
+                    <i class="fas fa-arrow-right"></i> <span id="authSubmitText">Sign Up</span>
+                </button>
+            </form>
+
+            <div class="auth-toggle">
+                <span id="authToggleMessage">Already have an account?</span>
+                <button id="authToggleBtn">Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    FOOTER
+    ============================================================ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-brand">vinCi <span>✦</span> Country Lifestyles</div>
+            <p style="margin-top:6px;">Explore · Learn · Connect · &copy; 2026 vinCi</p>
+        </div>
+    </footer>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script>
+        // ============================================================
+        // DATA
+        // ============================================================
+        const countriesData = [{
+            id: 'usa',
+            name: 'United States',
+            flag: '🇺🇸',
+            capital: 'Washington, D.C.',
+            population: '331M',
+            language: 'English',
+            currency: 'USD',
+            overview: 'The United States is a vast, diverse country with a dynamic culture shaped by immigrants from around the world. From bustling cities to sprawling national parks, the American lifestyle emphasizes individualism, innovation, and freedom of expression.',
+            dating: 'Dating in the US is casual and varied. Apps like Tinder and Bumble dominate, but many still meet through friends, work, or social events. The "dating scene" varies by region — NYC is fast-paced, while the Midwest tends to be more traditional. First dates often involve coffee, drinks, or a casual meal.',
+            housing: 'Housing ranges from urban apartments to suburban single-family homes. Major cities like NYC and SF have high rents, while the South and Midwest are more affordable. Homeownership is a key part of the "American Dream," but millennials and Gen Z increasingly rent or live with family longer.',
+            lifestyle: 'Americans work hard but value leisure — weekends are for hobbies, sports, and family. Fitness culture is huge, with gyms, running, and yoga popular. The US is a melting pot of cuisines, music, and festivals, with each region offering its own flavor.',
+            food: 'From burgers and BBQ to tacos and sushi, American food is a fusion of global influences. Fast food is iconic, but farm-to-table and organic movements are growing. Regional specialties include New York pizza, Louisiana gumbo, and Maine lobster.',
+            traditions: 'Thanksgiving, Independence Day, and Super Bowl Sunday are major cultural moments. Americans celebrate with parades, fireworks, and family gatherings. Halloween, Christmas, and Easter are also widely observed with unique local twists.',
+            images: [
+                'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=400&fit=crop'
+            ]
+        }, {
+            id: 'japan',
+            name: 'Japan',
+            flag: '🇯🇵',
+            capital: 'Tokyo',
+            population: '125M',
+            language: 'Japanese',
+            currency: 'JPY',
+            overview: 'Japan is a country where ancient traditions meet cutting-edge technology. With a strong emphasis on community, respect, and harmony, Japanese culture offers a unique blend of Shinto rituals, Zen philosophy, and modern pop culture.',
+            dating: 'Dating in Japan often starts through group activities or "konpa" (group blind dates). Apps like Pairs and Tinder are popular. Relationships tend to be more reserved, with an emphasis on mutual respect and commitment. "Kokuhaku" (confession of feelings) is a formal step before dating.',
+            housing: 'Housing in Japan is compact and efficient. Many live in apartments (mansions) in cities, while suburban homes are common. Due to high population density, space is optimized with minimalist design. Traditional ryokan and tatami rooms offer a glimpse into the past.',
+            lifestyle: 'Japanese life is disciplined yet deeply cultural. Punctuality, cleanliness, and order are paramount. People enjoy seasonal festivals, tea ceremonies, and onsen (hot springs). Work culture is intense, but there is a growing movement toward work-life balance.',
+            food: 'Japanese cuisine is a UNESCO heritage — sushi, ramen, tempura, and matcha are globally loved. Meals are artfully presented and emphasize fresh, seasonal ingredients. Street food like takoyaki and yakitori are also beloved.',
+            traditions: 'Shinto and Buddhist traditions shape Japanese life. New Year (Shogatsu), Obon, and cherry blossom viewing (hanami) are major events. Weddings may be Shinto, Buddhist, or Western-style. Respect for elders and ancestors is deeply ingrained.',
+            images: [
+                'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1542051841857-5f9008a6e5c0?w=600&h=400&fit=crop'
+            ]
+        }, {
+            id: 'italy',
+            name: 'Italy',
+            flag: '🇮🇹',
+            capital: 'Rome',
+            population: '59M',
+            language: 'Italian',
+            currency: 'EUR',
+            overview: 'Italy is a sun-drenched Mediterranean country known for its art, architecture, and passion for life. From the Roman Empire to the Renaissance, Italy has shaped Western culture. The Italian lifestyle is all about family, food, and "la dolce vita."',
+            dating: 'Italian dating is romantic and expressive. Men are known for their charm, and dates often involve long dinners, walks, and gelato. Family approval is important, and relationships tend to be serious. Italians are passionate and affectionate in love.',
+            housing: 'Housing in Italy ranges from historic stone villas in Tuscany to modern apartments in Milan. Many homes feature terracotta floors, wooden beams, and courtyards. The housing market is diverse, with rural properties being more affordable than city centers.',
+            lifestyle: 'Italians live life at a slower pace — "piano, piano" (slowly, slowly). Meals are a sacred social event, often lasting hours. Afternoon riposo (siesta) is common. Family is the cornerstone, and Sundays are for gatherings and long lunches.',
+            food: 'Italian cuisine is world-famous: pasta, pizza, risotto, and gelato. Each region has its specialties — Bolognese in Bologna, Neapolitan pizza in Naples, and seafood in the coastal areas. Olive oil, wine, and fresh herbs are staples.',
+            traditions: 'Italy has deep-rooted Catholic traditions. Christmas, Easter, and Ferragosto (August holiday) are celebrated with feasts and processions. Local festivals (sagre) honor patron saints with food, music, and fireworks.',
+            images: [
+                'https://images.unsplash.com/photo-1529260830197-1cfc4b9f3cc8?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=600&h=400&fit=crop'
+            ]
+        }, {
+            id: 'india',
+            name: 'India',
+            flag: '🇮🇳',
+            capital: 'New Delhi',
+            population: '1.4B',
+            language: 'Hindi, English + 21 others',
+            currency: 'INR',
+            overview: 'India is a subcontinent of incredible diversity — languages, religions, cuisines, and landscapes. With ancient traditions and a rapidly modernizing economy, India offers a sensory overload of colors, sounds, and spirituality.',
+            dating: 'Dating in India is evolving. In cities, apps like Tinder and Bumble are popular, while arranged marriages still prevail in many communities. Dating can be conservative, with family involvement and marriage often the ultimate goal. Bollywood romance influences expectations.',
+            housing: 'Housing in India varies widely — from luxury high-rises in Mumbai to traditional havelis in Rajasthan. Many families live together in joint-family systems. Urban housing is expensive, while rural homes are more basic but spacious.',
+            lifestyle: 'Indian life is vibrant and community-oriented. Festivals, temple visits, and family gatherings are central. Yoga and Ayurveda are woven into daily wellness. The pace of life is slower in villages, but cities buzz with energy.',
+            food: 'Indian cuisine is a explosion of flavors — curries, biryani, dosa, and chaat. Spices like turmeric, cumin, and cardamom are essential. Each region has its own specialties: Punjabi butter chicken, Hyderabadi biryani, and Goan seafood.',
+            traditions: 'Diwali, Holi, Eid, and Pongal are major festivals. Weddings are elaborate multi-day affairs with rituals, music, and feasts. Respect for elders, religious devotion, and hospitality are deeply ingrained values.',
+            images: [
+                'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1590038768360-7657f9348ce7?w=600&h=400&fit=crop'
+            ]
+        }, {
+            id: 'brazil',
+            name: 'Brazil',
+            flag: '🇧🇷',
+            capital: 'Brasília',
+            population: '216M',
+            language: 'Portuguese',
+            currency: 'BRL',
+            overview: 'Brazil is a land of rhythm, color, and passion. From the Amazon rainforest to the beaches of Rio, Brazilian culture is a fusion of Indigenous, Portuguese, and African influences. It is a country that celebrates life with music, dance, and joy.',
+            dating: 'Brazilian dating is passionate and outgoing. People meet through friends, parties, or apps like Tinder. "Ficar" (casual hookup) is common before committing to "namoro" (serious relationship). Brazilians are affectionate and expressive in love.',
+            housing: 'Housing in Brazil ranges from favelas (informal settlements) to luxurious beachfront apartments. The middle class often lives in gated condominiums. In cities, apartments are common, while suburban homes have gardens and pools.',
+            lifestyle: 'Life in Brazil is social and outdoorsy. Beach culture, football (soccer), and samba are central. People enjoy long meals, barbecues (churrasco), and street parties. The pace is relaxed, with a focus on enjoying the moment.',
+            food: 'Brazilian cuisine is hearty and diverse — feijoada (bean stew), pão de queijo (cheese bread), and brigadeiro (chocolate truffle) are classics. Fresh fruits like açaí, guava, and passion fruit are abundant. Churrasco is a barbecue tradition.',
+            traditions: 'Carnival is the world\'s biggest party, with samba parades and street celebrations. Festa Junina (June festival) honors rural traditions. Catholicism is dominant, with processions and pilgrimages. Capoeira, a dance-fight, is a cultural treasure.',
+            images: [
+                'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1552611052-33e04de081de?w=600&h=400&fit=crop'
+            ]
+        }, {
+            id: 'france',
+            name: 'France',
+            flag: '🇫🇷',
+            capital: 'Paris',
+            population: '68M',
+            language: 'French',
+            currency: 'EUR',
+            overview: 'France is synonymous with elegance, art, and gastronomy. From the romantic streets of Paris to the lavender fields of Provence, French culture celebrates beauty, reason, and the art of living. It is a global hub of fashion, cuisine, and philosophy.',
+            dating: 'French dating is sophisticated and subtle. People meet through friends, work, or social circles. The "rendez-vous" is a classic date — a walk, a café, or a museum. French romance values intellectual connection, wit, and charm.',
+            housing: 'French housing includes charming apartments with wrought-iron balconies in cities and stone farmhouses (mas) in the countryside. The housing market is regulated, with a strong rental sector. Many French own second homes for vacations.',
+            lifestyle: 'The French prioritize quality of life — long lunches, leisurely evenings, and weekends dedicated to culture and family. The "art de vivre" is about savoring food, wine, and conversation. Strikes and protests are also a cultural pastime.',
+            food: 'French cuisine is a UNESCO treasure — croissants, baguettes, cheese, and wine. Coq au vin, bouillabaisse, and ratatouille are iconic. Meals are multi-course affairs with wine pairings. Pastry shops (pâtisseries) are everywhere.',
+            traditions: 'Bastille Day (July 14) is a national celebration. Christmas markets, Epiphany galettes, and Beaujolais Nouveau day are cherished. The French take pride in their language, cinema, and literary heritage.',
+            images: [
+                'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=600&h=400&fit=crop'
+            ]
+        }, {
+            id: 'nigeria',
+            name: 'Nigeria',
+            flag: '🇳🇬',
+            capital: 'Abuja',
+            population: '223M',
+            language: 'English, Yoruba, Hausa, Igbo',
+            currency: 'NGN',
+            overview: 'Nigeria is the most populous country in Africa, with over 250 ethnic groups and a vibrant, entrepreneurial culture. From the bustling markets of Lagos to the ancient walls of Kano, Nigeria is a powerhouse of music, film, and creativity.',
+            dating: 'Nigerian dating is diverse — urban youth use apps like Tinder, while rural communities often follow traditional matchmaking. Families play a significant role, and marriage is highly valued. Dating is often a serious step toward commitment.',
+            housing: 'Housing in Nigeria ranges from modern high-rises in Lagos to traditional compounds in villages. The housing market is booming, with a growing middle class seeking gated communities. Rent is common in cities, while homeownership is a long-term goal.',
+            lifestyle: 'Nigerian life is energetic and community-focused. Music (Afrobeats, highlife) and dancing are central. People are religious — Christianity and Islam are dominant. Family ties are strong, and extended family often lives together.',
+            food: 'Nigerian cuisine is rich and spicy — jollof rice, pounded yam, egusi soup, and suya (spiced grilled meat) are staples. Each ethnic group has its specialties. Meals are often shared communally from a large bowl.',
+            traditions: 'Festivals like the Lagos Carnival, Durbar, and New Yam Festival celebrate heritage. Weddings are elaborate, with vibrant attire, music, and dancing. Respect for elders and community solidarity are core values.',
+            images: [
+                'https://images.unsplash.com/photo-1589394815806-80ee5e3c6f1c?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1580674285054-bed31e145f5c?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1592921870789-04563d5502b2?w=600&h=400&fit=crop'
+            ]
+        }, {
+            id: 'australia',
+            name: 'Australia',
+            flag: '🇦🇺',
+            capital: 'Canberra',
+            population: '26M',
+            language: 'English',
+            currency: 'AUD',
+            overview: 'Australia is a land of stunning natural beauty, from the Outback to the Great Barrier Reef. Its culture is laid-back, friendly, and outdoorsy, with a strong Indigenous heritage and a multicultural society shaped by immigration.',
+            dating: 'Australian dating is relaxed and straightforward. People meet through friends, work, or apps like Hinge. A typical date might be a beach walk, a BBQ, or a pub. Australians value honesty, humor, and a sense of adventure.',
+            housing: 'Housing in Australia includes suburban houses with backyards, city apartments, and beachfront homes. The market is expensive in Sydney and Melbourne. Many Australians rent, but homeownership is a cultural ideal.',
+            lifestyle: 'The Australian lifestyle is active and outdoorsy — surfing, hiking, and sports are big. The "Aussie" spirit is egalitarian and mateship-oriented. Weekends are for beaches, BBQs, and spending time with family and friends.',
+            food: 'Australian cuisine is diverse — meat pies, Vegemite, and lamingtons are icons. The country has a thriving café culture and world-class wines. Seafood is abundant, and Indigenous bush tucker is gaining recognition.',
+            traditions: 'Australia Day, ANZAC Day, and Christmas (summer time!) are major events. Indigenous culture is celebrated through art, dance, and storytelling. The country has a strong sporting culture, with cricket and Aussie rules football dominating.',
+            images: [
+                'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1523482580672-f109ba8cb9a2?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=400&fit=crop'
+            ]
+        }, {
+            id: 'mexico',
+            name: 'Mexico',
+            flag: '🇲🇽',
+            capital: 'Mexico City',
+            population: '129M',
+            language: 'Spanish',
+            currency: 'MXN',
+            overview: 'Mexico is a vibrant country with a deep Indigenous heritage and a colorful, lively culture. From ancient Mayan ruins to bustling modern cities, Mexico offers a rich tapestry of traditions, art, and culinary delights.',
+            dating: 'Mexican dating is romantic and family-oriented. "Cortejo" (courtship) is traditional, with men being chivalrous. Dating apps are popular in cities. Family approval is important, and relationships often lead to marriage.',
+            housing: 'Housing in Mexico ranges from colonial-style homes with courtyards to modern apartments in CDMX. The housing market is affordable compared to the US, with a growing trend of expats buying in coastal areas like Tulum and Puerto Vallarta.',
+            lifestyle: 'Life in Mexico is lively and social. Family is central, and gatherings often involve music, dancing, and food. The pace is relaxed ("mañana" attitude), but cities are bustling. Art, murals, and crafts are deeply embedded.',
+            food: 'Mexican cuisine is a UNESCO heritage — tacos, tamales, mole, and chiles en nogada. Corn, beans, and chili are staples. Street food is legendary, and each region has its own specialties. Tequila and mezcal are iconic drinks.',
+            traditions: 'Día de los Muertos (Day of the Dead) is a unique celebration of life and death. Las Posadas, Cinco de Mayo, and Independence Day are major festivities. Mariachi music, ballet folklórico, and bullfighting are cultural markers.',
+            images: [
+                'https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1529260830197-1cfc4b9f3cc8?w=600&h=400&fit=crop'
+            ]
+        }, {
+            id: 'china',
+            name: 'China',
+            flag: '🇨🇳',
+            capital: 'Beijing',
+            population: '1.41B',
+            language: 'Mandarin',
+            currency: 'CNY',
+            overview: 'China is a civilization with millennia of history, from the Great Wall to the Forbidden City. Today, it is a global superpower with a unique blend of ancient traditions and futuristic innovation. Chinese culture emphasizes harmony, family, and respect.',
+            dating: 'Dating in China is influenced by both traditional values and modern trends. Apps like Tantan and Momo are popular. "Matchmaking" is still common, with parents often involved. Relationships are serious, with marriage as the goal.',
+            housing: 'Housing in China is diverse — from traditional courtyard homes (siheyuan) to mega-apartment complexes in cities. The housing market is expensive in Tier-1 cities like Shanghai and Beijing. Many rent, while homeownership is a major life goal.',
+            lifestyle: 'Chinese life is fast-paced in cities, with a focus on education and career. Traditional practices like Tai Chi, calligraphy, and tea ceremonies are still cherished. Family is paramount, and filial piety is a core value.',
+            food: 'Chinese cuisine is one of the world\'s most diverse — dim sum, Peking duck, hot pot, and dumplings are globally beloved. Each region has its flavors: Sichuan for spice, Cantonese for seafood, and Shanghai for sweet dishes.',
+            traditions: 'Chinese New Year (Spring Festival), Mid-Autumn Festival, and Dragon Boat Festival are major celebrations. Red envelopes, lion dances, and fireworks are iconic. Confucian values shape social etiquette and family life.',
+            images: [
+                'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1528164344705-47542687000d?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1551884170-09fb70a3a2a3?w=600&h=400&fit=crop'
+            ]
+        }];
+
+        // ============================================================
+        // STATE
+        // ============================================================
+        let currentUser = null;
+        let isSignUp = true;
+        let currentCountryId = null;
+        let currentTab = 'overview';
+
+        // ============================================================
+        // DOM REFS
+        // ============================================================
+        const $ = id => document.getElementById(id);
+        const countryGrid = $('countryGrid');
+        const detailModal = $('detailModal');
+        const detailBody = $('detailBody');
+        const detailCloseBtn = $('detailCloseBtn');
+        const authModal = $('authModal');
+        const authCloseBtn = $('authCloseBtn');
+        const authForm = $('authForm');
+        const authToggleBtn = $('authToggleBtn');
+        const authToggleText = $('authToggleText');
+        const authToggleMessage = $('authToggleMessage');
+        const authSubmitText = $('authSubmitText');
+        const authSubmitBtn = $('authSubmitBtn');
+        const authError = $('authError');
+        const authName = $('authName');
+        const authEmail = $('authEmail');
+        const authPassword = $('authPassword');
+        const nameGroup = $('nameGroup');
+        const signInBtn = $('signInBtn');
+        const signUpBtn = $('signUpBtn');
+        const authButtons = $('authButtons');
+        const userBadge = $('userBadge');
+        const userName = $('userName');
+        const userAvatar = $('userAvatar');
+        const logoutBtn = $('logoutBtn');
+        const themeToggle = $('themeToggle');
+        const themeIcon = $('themeIcon');
+        const countryCount = $('countryCount');
+        const downloadPdfBtn = $('downloadPdfBtn');
+        const viewTextBtn = $('viewTextBtn');
+        const logoLink = $('logoLink');
+
+        // ============================================================
+        // RENDER COUNTRIES
+        // ============================================================
+        function renderCountries() {
+            countryGrid.innerHTML = countriesData.map(c => `
+                <div class="country-card" data-id="${c.id}">
+                    <img class="card-img" src="${c.images[0]}" alt="${c.name}" loading="lazy" />
+                    <div class="card-body">
+                        <span class="flag">${c.flag}</span>
+                        <h3>${c.name}</h3>
+                        <div class="sub">${c.overview.slice(0, 100)}…</div>
+                    </div>
+                    <span class="card-tag">${c.language}</span>
+                </div>
+            `).join('');
+
+            countryCount.textContent = countriesData.length;
+
+            document.querySelectorAll('.country-card').forEach(el => {
+                el.addEventListener('click', () => {
+                    const id = el.dataset.id;
+                    openDetail(id);
+                });
+            });
+        }
+
+        // ============================================================
+        // COUNTRY DETAIL
+        // ============================================================
+        function openDetail(id) {
+            const c = countriesData.find(d => d.id === id);
+            if (!c) return;
+            currentCountryId = id;
+            currentTab = 'overview';
+
+            renderDetail(c);
+            detailModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function renderDetail(c) {
+            const tabs = ['overview', 'dating', 'housing', 'lifestyle', 'food', 'traditions'];
+            const labels = {
+                overview: 'Overview',
+                dating: 'Dating',
+                housing: 'Housing',
+                lifestyle: 'Lifestyle',
+                food: 'Food',
+                traditions: 'Traditions'
+            };
+
+            const galleryHtml = c.images.map(img =>
+                `<img src="${img}" alt="${c.name}" loading="lazy" />`
+            ).join('');
+
+            const tabContentHtml = tabs.map(tab => `
+                <div class="tab-content ${tab === 'overview' ? 'active' : ''}" data-tab="${tab}">
+                    ${tab === 'overview' ? `
+                        <p>${c.overview}</p>
+                        <div class="gallery">${galleryHtml}</div>
+                    ` : `
+                        <h4>${labels[tab]} in ${c.name}</h4>
+                        <p>${c[tab]}</p>
+                    `}
+                </div>
+            `).join('');
+
+            detailBody.innerHTML = `
+                <div class="country-header">
+                    <span class="flag-big">${c.flag}</span>
+                    <h2>${c.name}</h2>
+                </div>
+                <div class="country-meta">
+                    <span><i class="fas fa-city"></i> ${c.capital}</span>
+                    <span><i class="fas fa-users"></i> ${c.population}</span>
+                    <span><i class="fas fa-language"></i> ${c.language}</span>
+                    <span><i class="fas fa-coins"></i> ${c.currency}</span>
+                </div>
+
+                <div class="tabs" id="detailTabs">
+                    ${tabs.map(tab => `
+                        <button class="${tab === 'overview' ? 'active' : ''}" data-tab="${tab}">
+                            ${labels[tab]}
+                        </button>
+                    `).join('')}
+                </div>
+
+                <div id="tabContainer">
+                    ${tabContentHtml}
+                </div>
+            `;
+
+            // Tab switching
+            document.querySelectorAll('#detailTabs button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.dataset.tab;
+                    currentTab = tab;
+                    document.querySelectorAll('#detailTabs button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.querySelectorAll('#tabContainer .tab-content').forEach(el => {
+                        el.classList.toggle('active', el.dataset.tab === tab);
+                    });
+                });
+            });
+        }
+
+        function closeDetail() {
+            detailModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // ============================================================
+        // PDF GENERATION (using html2canvas + jsPDF)
+        // ============================================================
+        async function generatePdf() {
+            const c = countriesData.find(d => d.id === currentCountryId);
+            if (!c) return;
+
+            // Build a clean export container
+            const container = document.createElement('div');
+            container.className = 'pdf-export-content';
+            container.style.position = 'fixed';
+            container.style.left = '-9999px';
+            container.style.top = '0';
+            container.style.width = '700px';
+            container.style.background = '#fff';
+            container.style.padding = '40px';
+            container.style.borderRadius = '16px';
+            container.style.zIndex = '-1';
+
+            const tabs = ['overview', 'dating', 'housing', 'lifestyle', 'food', 'traditions'];
+            const labels = {
+                overview: 'Overview',
+                dating: 'Dating',
+                housing: 'Housing',
+                lifestyle: 'Lifestyle',
+                food: 'Food',
+                traditions: 'Traditions'
+            };
+
+            const sectionsHtml = tabs.map(tab => `
+                <div class="pdf-section">
+                    <h4>${labels[tab]}</h4>
+                    <p>${c[tab]}</p>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="pdf-title">${c.flag} ${c.name}</div>
+                <div class="pdf-sub">A complete lifestyle guide · vinCi</div>
+                <div class="pdf-meta">
+                    <span>🏛️ ${c.capital}</span>
+                    <span>👥 ${c.population}</span>
+                    <span>🗣️ ${c.language}</span>
+                    <span>💰 ${c.currency}</span>
+                </div>
+                ${sectionsHtml}
+                <p style="margin-top:24px;font-size:0.8rem;color:#888;border-top:1px solid #eee;padding-top:16px;">
+                    Generated by vinCi · Country Lifestyles
+                </p>
+            `;
+
+            document.body.appendChild(container);
+
+            try {
+                const canvas = await html2canvas(container, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                });
+
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+                const pdfWidth = 210;
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                let heightLeft = pdfHeight;
+                let position = 0;
+
+                // Add first page
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                heightLeft -= pdfHeight;
+
+                // If content is taller than one page, add more pages
+                while (heightLeft > 0) {
+                    position = heightLeft - pdfHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                    heightLeft -= pdfHeight;
+                }
+
+                pdf.save(`${c.name}-lifestyle-guide.pdf`);
+            } catch (err) {
+                console.error('PDF error:', err);
+                alert('Could not generate PDF. Please try again.');
+            } finally {
+                document.body.removeChild(container);
+            }
+        }
+
+        // ============================================================
+        // VIEW AS TEXT
+        // ============================================================
+        function viewAsText() {
+            const c = countriesData.find(d => d.id === currentCountryId);
+            if (!c) return;
+
+            const tabs = ['overview', 'dating', 'housing', 'lifestyle', 'food', 'traditions'];
+            const labels = {
+                overview: 'Overview',
+                dating: 'Dating',
+                housing: 'Housing',
+                lifestyle: 'Lifestyle',
+                food: 'Food',
+                traditions: 'Traditions'
+            };
+
+            let text = `${c.flag} ${c.name.toUpperCase()}\n`;
+            text += `${'='.repeat(40)}\n`;
+            text += `Capital: ${c.capital}  |  Population: ${c.population}  |  Language: ${c.language}  |  Currency: ${c.currency}\n\n`;
+
+            tabs.forEach(tab => {
+                text += `${labels[tab].toUpperCase()}\n`;
+                text += `${'-'.repeat(30)}\n`;
+                text += `${c[tab]}\n\n`;
+            });
+
+            text += `\n— Generated by vinCi · Country Lifestyles —`;
+
+            // Open in a new window as plain text
+            const win = window.open('', '_blank');
+            if (win) {
+                win.document.write(`<pre style="font-family:system-ui, sans-serif;max-width:700px;margin:40px auto;padding:24px;background:#f8f8fc;border-radius:16px;line-height:1.8;font-size:15px;color:#1a1a2e;">${text}</pre>`);
+                win.document.title = `${c.name} · Lifestyle Guide`;
+            } else {
+                alert('Please allow popups to view the text version.');
+            }
+        }
+
+        // ============================================================
+        // AUTH SYSTEM
+        // ============================================================
+        function loadUser() {
+            const saved = localStorage.getItem('vinCi_user');
+            if (saved) {
+                try {
+                    currentUser = JSON.parse(saved);
+                    updateUIForUser();
+                } catch { currentUser = null; }
+            }
+        }
+
+        function saveUser(user) {
+            localStorage.setItem('vinCi_user', JSON.stringify(user));
+            currentUser = user;
+            updateUIForUser();
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('vinCi_user');
+            currentUser = null;
+            updateUIForUser();
+            closeAuth();
+        }
+
+        function updateUIForUser() {
+            if (currentUser) {
+                authButtons.style.display = 'none';
+                userBadge.style.display = 'flex';
+                userName.textContent = currentUser.name || 'User';
+                userAvatar.textContent = (currentUser.name || 'U')[0].toUpperCase();
+            } else {
+                authButtons.style.display = 'flex';
+                userBadge.style.display = 'none';
+            }
+        }
+
+        // ============================================================
+        // AUTH MODAL
+        // ============================================================
+        function openAuth(mode) {
+            isSignUp = mode === 'signup';
+            authModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            updateAuthForm();
+            authError.style.display = 'none';
+            authForm.reset();
+        }
+
+        function closeAuth() {
+            authModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function updateAuthForm() {
+            if (isSignUp) {
+                nameGroup.style.display = 'block';
+                authSubmitText.textContent = 'Sign Up';
+                authSubmitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+                authToggleText.textContent = 'Create your free account';
+                authToggleMessage.textContent = 'Already have an account?';
+                authToggleBtn.textContent = 'Sign In';
+            } else {
+                nameGroup.style.display = 'none';
+                authSubmitText.textContent = 'Sign In';
+                authSubmitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                authToggleText.textContent = 'Welcome back';
+                authToggleMessage.textContent = "Don't have an account?";
+                authToggleBtn.textContent = 'Sign Up';
+            }
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = authEmail.value.trim();
+            const password = authPassword.value.trim();
+            const name = authName.value.trim();
+
+            if (!email || !password) {
+                showAuthError('Please fill in all required fields.');
+                return;
+            }
+            if (isSignUp && !name) {
+                showAuthError('Please enter your name.');
+                return;
+            }
+            if (password.length < 4) {
+                showAuthError('Password must be at least 4 characters.');
+                return;
+            }
+
+            if (isSignUp) {
+                // Check if user exists
+                const existing = localStorage.getItem(`vinCi_user_${email}`);
+                if (existing) {
+                    showAuthError('An account with this email already exists. Please sign in.');
+                    return;
+                }
+                const user = { email, name, password };
+                localStorage.setItem(`vinCi_user_${email}`, JSON.stringify(user));
+                saveUser({ email, name });
+                closeAuth();
+            } else {
+                const stored = localStorage.getItem(`vinCi_user_${email}`);
+                if (!stored) {
+                    showAuthError('No account found with this email. Please sign up.');
+                    return;
+                }
+                try {
+                    const user = JSON.parse(stored);
+                    if (user.password !== password) {
+                        showAuthError('Incorrect password. Please try again.');
+                        return;
+                    }
+                    saveUser({ email, name: user.name });
+                    closeAuth();
+                } catch {
+                    showAuthError('Something went wrong. Please try again.');
+                }
+            }
+        }
+
+        function showAuthError(msg) {
+            authError.textContent = msg;
+            authError.style.display = 'block';
+        }
+
+        // ============================================================
+        // THEME
+        // ============================================================
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            localStorage.setItem('vinCi_theme', isDark ? 'dark' : 'light');
+        }
+
+        function loadTheme() {
+            const saved = localStorage.getItem('vinCi_theme');
+            if (saved === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeIcon.className = 'fas fa-moon';
+            }
+        }
+
+        // ============================================================
+        // EVENT BINDING
+        // ============================================================
+        function init() {
+            renderCountries();
+            loadUser();
+            loadTheme();
+
+            // Detail modal
+            detailCloseBtn.addEventListener('click', closeDetail);
+            detailModal.addEventListener('click', (e) => {
+                if (e.target === detailModal) closeDetail();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeDetail();
+            });
+
+            // Auth modal
+            signInBtn.addEventListener('click', () => openAuth('signin'));
+            signUpBtn.addEventListener('click', () => openAuth('signup'));
+            authCloseBtn.addEventListener('click', closeAuth);
+            authModal.addEventListener('click', (e) => {
+                if (e.target === authModal) closeAuth();
+            });
+            authToggleBtn.addEventListener('click', () => {
+                isSignUp = !isSignUp;
+                updateAuthForm();
+                authError.style.display = 'none';
+                authForm.reset();
+            });
+            authForm.addEventListener('submit', handleAuthSubmit);
+
+            // Logout
+            logoutBtn.addEventListener('click', logoutUser);
+
+            // Theme
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // PDF
+            downloadPdfBtn.addEventListener('click', generatePdf);
+
+            // View as text
+            viewTextBtn.addEventListener('click', viewAsText);
+
+            // Logo scroll to top
+            logoLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Close auth with Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && authModal.classList.contains('active')) closeAuth();
+            });
+
+            // Keyboard shortcut for theme (Ctrl+Shift+T)
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.shiftKey && (e.key === 'T' || e.key === 't')) {
+                    e.preventDefault();
+                    toggleTheme();
+                }
+            });
+        }
+
+        // ============================================================
+        // START
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
