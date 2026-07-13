@@ -1,0 +1,2363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vinCi · Global Lifestyles</title>
+
+    <!-- ===== FAVICON (Globe emoji as icon) ===== -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80' fill='%236C5CE7'>🌍</text></svg>" />
+
+    <!-- ===== FONTS & ICONS ===== -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- ===== jsPDF + html2canvas ===== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+    </script>
+
+    <style>
+        /* ============================================================
+               GLOBAL RESET & ROOT (DARK MODE DEFAULT)
+               ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f0e1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: rgba(26, 26, 46, 0.80);
+            --text-primary: #f0eeff;
+            --text-secondary: #b8b0d8;
+            --text-muted: #6a6a8a;
+            --accent: #6C5CE7;
+            --accent-light: #a29bfe;
+            --accent-dark: #4a3db8;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.50);
+            --shadow-hover: 0 30px 80px rgba(108, 92, 231, 0.30);
+            --radius: 24px;
+            --radius-sm: 14px;
+            --transition: 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            --glass: rgba(26, 26, 46, 0.70);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+            --ad-glow: rgba(255, 215, 0, 0.15);
+            --color-1: #ff6b6b;
+            --color-2: #feca57;
+            --color-3: #48dbfb;
+            --color-4: #ff9ff3;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background var(--transition), color var(--transition);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        body.light-mode {
+            --bg-primary: #f8f9fe;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(255, 255, 255, 0.75);
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a4a6a;
+            --text-muted: #8888aa;
+            --shadow: 0 20px 60px rgba(108, 92, 231, 0.12);
+            --shadow-hover: 0 30px 80px rgba(108, 92, 231, 0.20);
+            --glass: rgba(255, 255, 255, 0.60);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --ad-glow: rgba(255, 215, 0, 0.25);
+        }
+
+        body.light-mode .theme-toggle .fa-moon { display: inline; }
+        body.light-mode .theme-toggle .fa-sun { display: none; }
+        body:not(.light-mode) .theme-toggle .fa-moon { display: none; }
+        body:not(.light-mode) .theme-toggle .fa-sun { display: inline; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-light); border-radius: 12px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        .container {
+            max-width: 1380px;
+            margin: 0 auto;
+            padding: 0 28px;
+        }
+
+        .section-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--accent), var(--color-2), var(--color-4));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.4rem;
+        }
+
+        .section-sub {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 1.8rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-decoration: none;
+            font-family: var(--font);
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(108, 92, 231, 0.30);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 16px 40px rgba(108, 92, 231, 0.40);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-primary);
+            box-shadow: none;
+            border: 2px solid var(--accent-light);
+        }
+        .btn-outline:hover {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(108, 92, 231, 0.30);
+        }
+        .btn-sm {
+            padding: 8px 18px;
+            font-size: 0.82rem;
+        }
+
+        /* ============================================================
+               FLOATING SHAPES
+               ============================================================ */
+        .floating-shapes {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .floating-shapes .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.06;
+            animation: floatShape 20s infinite alternate ease-in-out;
+        }
+        .floating-shapes .shape:nth-child(1) {
+            width: 300px; height: 300px; top: -5%; left: -5%;
+            background: var(--color-1); animation-duration: 25s;
+        }
+        .floating-shapes .shape:nth-child(2) {
+            width: 200px; height: 200px; bottom: 10%; right: 5%;
+            background: var(--color-2); animation-duration: 30s; animation-delay: 2s;
+        }
+        .floating-shapes .shape:nth-child(3) {
+            width: 150px; height: 150px; top: 40%; left: 60%;
+            background: var(--color-3); animation-duration: 18s; animation-delay: 4s;
+        }
+        .floating-shapes .shape:nth-child(4) {
+            width: 100px; height: 100px; bottom: 30%; left: 10%;
+            background: var(--color-4); animation-duration: 22s; animation-delay: 1s;
+        }
+        @keyframes floatShape {
+            0% { transform: translate(0,0) scale(1) rotate(0deg); }
+            33% { transform: translate(30px,-50px) scale(1.1) rotate(120deg); }
+            66% { transform: translate(-20px,30px) scale(0.9) rotate(240deg); }
+            100% { transform: translate(10px,-20px) scale(1.05) rotate(360deg); }
+        }
+
+        /* ============================================================
+               HEADER
+               ============================================================ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--glass);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 14px 0;
+            transition: background var(--transition);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent), var(--color-2));
+            color: #fff;
+            font-size: 1.6rem;
+            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.35);
+            transition: transform var(--transition);
+        }
+        .logo-icon:hover {
+            transform: rotate(-6deg) scale(1.04);
+        }
+        .logo span {
+            background: linear-gradient(135deg, var(--accent), var(--color-2), var(--color-4));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .nav-actions .btn {
+            padding: 10px 22px;
+            font-size: 0.85rem;
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            transition: color var(--transition);
+        }
+        .hamburger:hover {
+            color: var(--accent);
+        }
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 60px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .theme-toggle:hover {
+            transform: rotate(12deg);
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            padding: 6px 16px 6px 12px;
+            border-radius: 60px;
+            border: 1px solid var(--glass-border);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+        .user-badge .avatar {
+            width: 32px; height: 32px;
+            border-radius: 60px;
+            background: linear-gradient(135deg, var(--accent), var(--color-2));
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 700; font-size: 0.9rem;
+        }
+        .user-badge .logout-btn {
+            background: none; border: none;
+            color: var(--text-muted); cursor: pointer; font-size: 0.9rem; padding: 0 4px;
+            transition: color var(--transition);
+        }
+        .user-badge .logout-btn:hover { color: #e74c3c; }
+
+        /* ============================================================
+               SIDEBAR (overlay)
+               ============================================================ */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1500;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            display: block;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -420px;
+            width: 400px;
+            max-width: 85vw;
+            height: 100%;
+            z-index: 1600;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--glass-border);
+            box-shadow: 4px 0 40px rgba(0,0,0,0.5);
+            transition: left 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0 20px 20px;
+            overflow-y: auto;
+        }
+        .sidebar.open {
+            left: 0;
+        }
+        .sidebar .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-right: 20px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 12px;
+        }
+        .sidebar .sidebar-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--color-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .sidebar .sidebar-close {
+            background: none; border: none;
+            color: var(--text-muted); font-size: 1.6rem;
+            cursor: pointer;
+            transition: color var(--transition);
+        }
+        .sidebar .sidebar-close:hover { color: var(--text-primary); }
+
+        .sidebar .sidebar-auth {
+            padding-right: 20px;
+            margin-bottom: 16px;
+        }
+        .sidebar .sidebar-auth .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .sidebar .country-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 12px;
+        }
+        .sidebar .country-list .country-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition);
+            margin-bottom: 4px;
+            border: 1px solid transparent;
+        }
+        .sidebar .country-list .country-item:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-light);
+            transform: translateX(4px);
+        }
+        .sidebar .country-list .country-item.active {
+            background: var(--bg-card);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(108,92,231,0.15);
+        }
+        .sidebar .country-list .country-item .flag {
+            font-size: 1.6rem;
+        }
+        .sidebar .country-list .country-item .name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        /* Media panel inside sidebar */
+        .sidebar .media-panel {
+            padding-right: 20px;
+            margin-top: 12px;
+            border-top: 1px solid var(--glass-border);
+            padding-top: 16px;
+            display: none;
+        }
+        .sidebar .media-panel.active {
+            display: block;
+        }
+        .sidebar .media-panel h4 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+        .sidebar .media-panel .media-images {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .sidebar .media-panel .media-images img {
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--glass-border);
+        }
+        .sidebar .media-panel .media-video iframe {
+            width: 100%;
+            height: 160px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--glass-border);
+        }
+        .sidebar .media-panel .media-docs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .sidebar .media-panel .media-docs a {
+            background: var(--bg-card);
+            padding: 6px 14px;
+            border-radius: 60px;
+            font-size: 0.75rem;
+            color: var(--accent-light);
+            text-decoration: none;
+            border: 1px solid var(--glass-border);
+            transition: all var(--transition);
+        }
+        .sidebar .media-panel .media-docs a:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        /* ============================================================
+               HERO
+               ============================================================ */
+        .hero {
+            padding: 60px 0 30px;
+            text-align: center;
+            position: relative;
+        }
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            margin-bottom: 16px;
+        }
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--accent), var(--color-2), var(--color-4));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 680px;
+            margin: 0 auto 36px;
+        }
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .hero-stats .stat { text-align: center; }
+        .hero-stats .stat .num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+        .hero-stats .stat .label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ============================================================
+               SEARCH
+               ============================================================ */
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0 30px;
+        }
+        .search-bar input {
+            width: 100%;
+            max-width: 560px;
+            padding: 16px 24px;
+            border-radius: 60px;
+            border: 1px solid var(--glass-border);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: var(--font);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: border var(--transition), box-shadow var(--transition);
+            outline: none;
+        }
+        .search-bar input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(108,92,231,0.15);
+        }
+        .search-bar input::placeholder { color: var(--text-muted); }
+
+        /* ============================================================
+               BANNER ADS
+               ============================================================ */
+        .ad-banner {
+            background: var(--bg-card);
+            border: 1px solid var(--color-2);
+            border-radius: var(--radius);
+            padding: 18px 28px;
+            margin: 12px 0 30px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            box-shadow: 0 0 30px var(--ad-glow);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all var(--transition);
+        }
+        .ad-banner:hover {
+            transform: scale(1.01);
+            box-shadow: 0 0 50px var(--ad-glow);
+        }
+        .ad-banner .ad-content {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        .ad-banner .ad-content i {
+            font-size: 2.2rem;
+            color: var(--color-2);
+        }
+        .ad-banner .ad-content .ad-text {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+        .ad-banner .ad-content .ad-text small {
+            font-weight: 400;
+            color: var(--text-secondary);
+            display: block;
+            font-size: 0.85rem;
+        }
+        .ad-banner .ad-cta {
+            background: var(--color-2);
+            color: #1a1a2e;
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ad-banner .ad-cta:hover {
+            transform: scale(1.05);
+            background: #f39c12;
+        }
+        .ad-banner .ad-badge {
+            font-size: 0.65rem;
+            background: rgba(254, 202, 87, 0.2);
+            padding: 2px 12px;
+            border-radius: 60px;
+            color: var(--color-2);
+            border: 1px solid var(--color-2);
+            letter-spacing: 0.04em;
+        }
+
+        /* ============================================================
+               HIGHLIGHTS
+               ============================================================ */
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 28px;
+            margin: 30px 0 40px;
+        }
+        .highlight-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: var(--radius);
+            border: 1px solid var(--glass-border);
+            padding: 24px 28px;
+            box-shadow: var(--shadow);
+            transition: all var(--transition);
+        }
+        .highlight-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-hover);
+        }
+        .highlight-card .h-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+        .highlight-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        .highlight-card p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .highlight-card .h-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 14px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--glass-border);
+            padding-top: 12px;
+        }
+
+        /* ============================================================
+               COUNTRY GRID WITH ANIMATION
+               ============================================================ */
+        .countries-section {
+            padding: 10px 0 60px;
+        }
+        .country-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 28px;
+            margin-top: 12px;
+        }
+        .country-card,
+        .ad-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: var(--radius);
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all var(--transition);
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardFadeIn 0.6s ease forwards;
+        }
+        .country-card:nth-child(1) { animation-delay: 0.05s; }
+        .country-card:nth-child(2) { animation-delay: 0.10s; }
+        .country-card:nth-child(3) { animation-delay: 0.15s; }
+        .country-card:nth-child(4) { animation-delay: 0.20s; }
+        .country-card:nth-child(5) { animation-delay: 0.25s; }
+        .country-card:nth-child(6) { animation-delay: 0.30s; }
+        .country-card:nth-child(7) { animation-delay: 0.35s; }
+        .country-card:nth-child(8) { animation-delay: 0.40s; }
+        .country-card:nth-child(9) { animation-delay: 0.45s; }
+        .country-card:nth-child(10) { animation-delay: 0.50s; }
+        .country-card:nth-child(11) { animation-delay: 0.55s; }
+        .country-card:nth-child(12) { animation-delay: 0.60s; }
+        .country-card:nth-child(13) { animation-delay: 0.65s; }
+        .country-card:nth-child(14) { animation-delay: 0.70s; }
+        .country-card:nth-child(15) { animation-delay: 0.75s; }
+        .country-card:nth-child(16) { animation-delay: 0.80s; }
+        .country-card:nth-child(17) { animation-delay: 0.85s; }
+        .country-card:nth-child(18) { animation-delay: 0.90s; }
+        .country-card:nth-child(19) { animation-delay: 0.95s; }
+        .country-card:nth-child(20) { animation-delay: 1.00s; }
+        @keyframes cardFadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .country-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+            cursor: pointer;
+        }
+        .country-card .card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s ease;
+        }
+        .country-card:hover .card-img {
+            transform: scale(1.04);
+        }
+        .country-card .card-body {
+            padding: 18px 20px 22px;
+        }
+        .country-card .card-body .flag {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .country-card .card-body h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+        .country-card .card-body .sub {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .country-card .card-tag {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 4px 14px;
+            border-radius: 60px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+        }
+
+        /* Ad card - same animation */
+        .ad-card {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardFadeIn 0.6s ease forwards;
+            border: 1.5px solid var(--color-2);
+            box-shadow: 0 0 30px var(--ad-glow);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 28px 18px;
+            min-height: 280px;
+        }
+        .ad-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 0 60px var(--ad-glow);
+        }
+        .ad-card .ad-icon { font-size: 3.4rem; color: var(--color-2); margin-bottom: 12px; }
+        .ad-card .ad-title { font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+        .ad-card .ad-desc { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px; max-width: 90%; }
+        .ad-card .ad-label {
+            background: var(--color-2); color: #1a1a2e;
+            padding: 4px 16px; border-radius: 60px;
+            font-weight: 700; font-size: 0.75rem; text-transform: uppercase;
+        }
+        .ad-card .ad-badge-tag {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(254,202,87,0.2); border: 1px solid var(--color-2);
+            color: var(--color-2); font-size: 0.6rem; padding: 2px 12px; border-radius: 60px;
+            font-weight: 600; letter-spacing: 0.04em;
+        }
+
+        /* ============================================================
+               SCROLL TO TOP
+               ============================================================ */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 900;
+            background: var(--accent);
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 8px 24px rgba(108,92,231,0.4);
+            cursor: pointer;
+            border: none;
+            transition: all var(--transition);
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+        .scroll-top.visible {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+        .scroll-top:hover {
+            transform: scale(1.1);
+            background: var(--accent-dark);
+        }
+
+        /* ============================================================
+               POPUP AD
+               ============================================================ */
+        .popup-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            animation: fadeIn 0.4s ease;
+        }
+        .popup-overlay.active { display: flex; }
+        .popup-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 100%;
+            padding: 36px 32px 32px;
+            border: 1px solid var(--color-2);
+            box-shadow: 0 0 60px var(--ad-glow);
+            animation: slideUp 0.5s ease;
+            position: relative;
+            text-align: center;
+        }
+        .popup-card .popup-close {
+            position: absolute;
+            top: 12px; right: 18px;
+            background: none; border: none;
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color var(--transition);
+        }
+        .popup-card .popup-close:hover { color: var(--text-primary); }
+        .popup-card .popup-icon { font-size: 3.6rem; color: var(--color-2); margin-bottom: 12px; }
+        .popup-card h3 { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; }
+        .popup-card p { color: var(--text-secondary); margin-bottom: 20px; font-size: 0.95rem; }
+        .popup-card .popup-btn {
+            background: var(--color-2); color: #1a1a2e;
+            padding: 12px 36px; border-radius: 60px;
+            font-weight: 700; font-size: 1rem;
+            border: none; cursor: pointer;
+            transition: all var(--transition);
+            text-decoration: none;
+            display: inline-block;
+        }
+        .popup-card .popup-btn:hover { transform: scale(1.05); background: #f39c12; }
+        .popup-card .popup-skip {
+            display: block; margin-top: 12px;
+            font-size: 0.8rem; color: var(--text-muted);
+            cursor: pointer; background: none; border: none;
+            text-decoration: underline; transition: color var(--transition);
+        }
+        .popup-card .popup-skip:hover { color: var(--text-primary); }
+
+        /* ============================================================
+               MODAL (DETAIL)
+               ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0,0,0,0.70);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            max-width: 960px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px 36px 36px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.60);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            animation: slideUp 0.35s ease;
+        }
+        .modal-close {
+            position: sticky;
+            top: 0;
+            float: right;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 60px;
+            width: 44px; height: 44px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: all var(--transition);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+        .modal-close:hover { background: var(--accent); color: #fff; transform: rotate(90deg); }
+
+        .modal .country-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .modal .country-header .flag-big { font-size: 3.6rem; line-height: 1; }
+        .modal .country-header h2 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; }
+        .modal .country-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px 28px;
+            margin: 6px 0 18px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 16px;
+        }
+        .modal .country-meta span i { margin-right: 6px; color: var(--accent); width: 18px; }
+
+        .modal .tabs {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--glass-border);
+            margin-bottom: 22px;
+            padding-bottom: 0;
+        }
+        .modal .tabs button {
+            background: none; border: none;
+            padding: 10px 18px;
+            font-weight: 600; font-size: 0.85rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            transition: all var(--transition);
+            font-family: var(--font);
+            position: relative;
+        }
+        .modal .tabs button::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            width: 0; height: 3px;
+            background: var(--accent);
+            border-radius: 6px;
+            transition: all var(--transition);
+            transform: translateX(-50%);
+        }
+        .modal .tabs button.active { color: var(--accent); }
+        .modal .tabs button.active::after { width: 70%; }
+        .modal .tabs button:hover { color: var(--accent); }
+
+        .modal .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 0.98rem;
+        }
+        .modal .tab-content.active { display: block; }
+        .modal .tab-content h4 {
+            color: var(--text-primary);
+            font-size: 1.15rem;
+            margin: 18px 0 8px;
+            font-weight: 700;
+        }
+        .modal .tab-content p { margin-bottom: 14px; }
+        .modal .tab-content ul { padding-left: 22px; margin-bottom: 14px; }
+        .modal .tab-content ul li { margin-bottom: 6px; }
+        .modal .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            margin: 16px 0 8px;
+        }
+        .modal .gallery img {
+            width: 100%; height: 110px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--glass-border);
+            transition: transform var(--transition);
+        }
+        .modal .gallery img:hover { transform: scale(1.04); }
+
+        .modal-ad-box {
+            background: var(--bg-card);
+            border: 1px solid var(--color-2);
+            border-radius: var(--radius-sm);
+            padding: 16px 22px;
+            margin: 20px 0 12px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            box-shadow: 0 0 20px var(--ad-glow);
+        }
+        .modal-ad-box .ad-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .modal-ad-box .ad-left i { font-size: 1.8rem; color: var(--color-2); }
+        .modal-ad-box .ad-left .ad-text { font-weight: 600; color: var(--text-primary); }
+        .modal-ad-box .ad-left .ad-text small {
+            font-weight: 400; color: var(--text-secondary);
+            display: block; font-size: 0.8rem;
+        }
+        .modal-ad-box .ad-btn {
+            background: var(--color-2); color: #1a1a2e;
+            padding: 6px 20px; border-radius: 60px;
+            font-weight: 700; font-size: 0.8rem;
+            border: none; cursor: pointer;
+            transition: all var(--transition);
+            text-decoration: none;
+        }
+        .modal-ad-box .ad-btn:hover { background: #f39c12; transform: scale(1.04); }
+
+        .modal .pdf-actions {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        /* ============================================================
+               AUTH MODAL
+               ============================================================ */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            animation: fadeIn 0.3s ease;
+        }
+        .auth-overlay.active { display: flex; }
+        .auth-modal {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            max-width: 440px;
+            width: 100%;
+            padding: 40px 36px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.60);
+            border: 1px solid var(--glass-border);
+            animation: slideUp 0.35s ease;
+            position: relative;
+        }
+        .auth-modal .auth-close {
+            position: absolute;
+            top: 16px; right: 20px;
+            background: none; border: none;
+            font-size: 1.6rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color var(--transition);
+        }
+        .auth-modal .auth-close:hover { color: var(--text-primary); }
+        .auth-modal .auth-logo { text-align: center; margin-bottom: 28px; }
+        .auth-modal .auth-logo .logo-icon {
+            margin: 0 auto 10px;
+            width: 56px; height: 56px;
+            font-size: 2rem;
+        }
+        .auth-modal .auth-logo h3 { font-size: 1.6rem; font-weight: 700; }
+        .auth-modal .auth-logo p { color: var(--text-muted); font-size: 0.9rem; }
+        .auth-modal .form-group { margin-bottom: 18px; }
+        .auth-modal .form-group label {
+            display: block; font-weight: 600; font-size: 0.85rem;
+            margin-bottom: 4px; color: var(--text-secondary);
+        }
+        .auth-modal .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--glass-border);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: 0.95rem;
+            transition: border var(--transition);
+        }
+        .auth-modal .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(108,92,231,0.15);
+        }
+        .auth-modal .auth-toggle {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .auth-modal .auth-toggle button {
+            background: none; border: none;
+            color: var(--accent); font-weight: 600;
+            cursor: pointer; font-family: var(--font);
+            font-size: 0.9rem;
+        }
+        .auth-modal .auth-toggle button:hover { text-decoration: underline; }
+        .auth-modal .btn {
+            width: 100%;
+            justify-content: center;
+            padding: 14px;
+            font-size: 1rem;
+            margin-top: 6px;
+        }
+        .auth-modal .error-msg {
+            background: #3b1c1c; color: #fca5a5;
+            padding: 10px 16px; border-radius: var(--radius-sm);
+            font-size: 0.85rem; margin-bottom: 14px;
+            display: none;
+        }
+        body.light-mode .auth-modal .error-msg {
+            background: #fee2e2; color: #b91c1c;
+        }
+
+        /* ============================================================
+               FOOTER
+               ============================================================ */
+        .footer {
+            padding: 36px 0 24px;
+            border-top: 1px solid var(--glass-border);
+            margin-top: 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .footer .footer-brand { font-weight: 700; color: var(--text-primary); }
+        .footer .footer-brand span { color: var(--accent); }
+
+        /* ============================================================
+               ANIMATIONS
+               ============================================================ */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ============================================================
+               RESPONSIVE
+               ============================================================ */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.6rem; }
+            .hero p { font-size: 1rem; }
+            .hero-stats { gap: 24px; }
+            .section-title { font-size: 1.8rem; }
+            .modal { padding: 24px 18px; }
+            .modal .country-header h2 { font-size: 1.6rem; }
+            .modal .tabs button { padding: 8px 12px; font-size: 0.75rem; }
+            .country-grid { grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 18px; }
+            .header-inner { flex-direction: column; align-items: stretch; }
+            .nav-actions { justify-content: center; }
+            .logo { justify-content: center; }
+            .highlights-grid { grid-template-columns: 1fr; }
+            .ad-banner { flex-direction: column; text-align: center; }
+            .modal-ad-box { flex-direction: column; text-align: center; }
+            .popup-card { padding: 28px 20px; }
+            .sidebar { width: 85vw; left: -90vw; }
+            .sidebar.open { left: 0; }
+            .scroll-top { bottom: 20px; right: 20px; width: 44px; height: 44px; font-size: 1.2rem; }
+        }
+        @media (max-width: 480px) {
+            .country-grid { grid-template-columns: 1fr 1fr; }
+            .hero h1 { font-size: 2rem; }
+            .modal .gallery { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* ============================================================
+               PDF EXPORT STYLES
+               ============================================================ */
+        .pdf-export-content {
+            background: #fff; color: #1a1a2e;
+            padding: 40px; border-radius: 16px;
+            font-family: var(--font);
+        }
+        .pdf-export-content .pdf-title { font-size: 2.2rem; font-weight: 800; margin-bottom: 6px; }
+        .pdf-export-content .pdf-sub { color: #4a4a6a; margin-bottom: 20px; font-size: 1rem; }
+        .pdf-export-content .pdf-section { margin-bottom: 18px; }
+        .pdf-export-content .pdf-section h4 {
+            font-size: 1.1rem; font-weight: 700;
+            color: #6C5CE7; margin-bottom: 4px;
+        }
+        .pdf-export-content .pdf-section p,
+        .pdf-export-content .pdf-section li { color: #2d2d44; line-height: 1.7; }
+        .pdf-export-content .pdf-meta {
+            display: flex; gap: 20px; flex-wrap: wrap;
+            font-size: 0.9rem; color: #4a4a6a;
+            margin-bottom: 16px; padding-bottom: 16px;
+            border-bottom: 1px solid #e8e8f0;
+        }
+    </style>
+</head>
+
+<body class="dark-mode">
+
+    <!-- ===== FLOATING SHAPES ===== -->
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header" id="mainHeader">
+        <div class="container header-inner">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button class="hamburger" id="hamburgerBtn" aria-label="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a href="#" class="logo" id="logoLink">
+                    <span class="logo-icon">🌍</span>
+                    <span>vinCi</span>
+                </a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+
+                <div id="authButtons">
+                    <button class="btn btn-outline btn-sm" id="signInBtn">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                    <button class="btn btn-sm" id="signUpBtn">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </button>
+                </div>
+
+                <div id="userBadge" style="display:none;" class="user-badge">
+                    <span class="avatar" id="userAvatar">U</span>
+                    <span id="userName">User</span>
+                    <button class="logout-btn" id="logoutBtn" title="Sign out">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== SIDEBAR ===== -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-globe" style="margin-right:8px;"></i> Explore</h3>
+            <button class="sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="sidebar-auth" id="sidebarAuth">
+            <button class="btn btn-sm" id="sidebarSignInBtn" style="width:100%;">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:6px; text-align:center;">
+                to save favorites & more
+            </p>
+        </div>
+
+        <div class="country-list" id="sidebarCountryList">
+            <!-- populated by JS -->
+        </div>
+
+        <div class="media-panel" id="mediaPanel">
+            <h4><i class="fas fa-images" style="margin-right:6px;"></i> Media Gallery</h4>
+            <div class="media-images" id="mediaImages"></div>
+            <div class="media-video" id="mediaVideo"></div>
+            <div class="media-docs" id="mediaDocs"></div>
+        </div>
+    </div>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+        <div class="container">
+            <h1>
+                Discover <span class="highlight">country lifestyles</span><br />
+                around the world
+            </h1>
+            <p>
+                Explore dating, housing, traditions, movies, and daily life across 100+ nations.
+                Learn, compare, and download comprehensive guides to take offline.
+            </p>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="num" id="countryCount">0</div>
+                    <div class="label">Countries</div>
+                </div>
+                <div class="stat">
+                    <div class="num">8</div>
+                    <div class="label">Categories</div>
+                </div>
+                <div class="stat">
+                    <div class="num">📥</div>
+                    <div class="label">PDF Ready</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SEARCH & BANNER ===== -->
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" id="countrySearch" placeholder="🔍 Search for a country..." />
+        </div>
+
+        <!-- TOP BANNER AD -->
+        <div class="ad-banner" id="topBannerAd">
+            <div class="ad-content">
+                <i class="fas fa-globe-asia"></i>
+                <div class="ad-text">
+                    🌍 Get a Foreign Virtual Number &amp; Premium Social Accounts
+                    <small>US, UK, CA, AU numbers · Verified FB/IG/Twitter · High-speed VPN</small>
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <span class="ad-badge">📢 SPONSORED</span>
+                <a href="#" class="ad-cta" target="_blank">Shop Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== HIGHLIGHTS ===== -->
+    <div class="container">
+        <div class="highlights-grid" id="highlightsGrid">
+            <div class="highlight-card">
+                <div class="h-icon"><i class="fas fa-newspaper"></i></div>
+                <h3>🌍 Trending News</h3>
+                <div id="trendingNews"><p>Loading global highlights...</p></div>
+                <div class="h-meta"><span>📅 Updated daily</span><span>vinCi Pulse</span></div>
+            </div>
+            <div class="highlight-card">
+                <div class="h-icon"><i class="fas fa-film"></i></div>
+                <h3>🎬 Cinema Picks</h3>
+                <div id="cinemaPicks"><p>Loading top movie recommendations...</p></div>
+                <div class="h-meta"><span>🎞️ Critic's choice</span><span>vinCi Movies</span></div>
+            </div>
+            <div class="highlight-card">
+                <div class="h-icon"><i class="fas fa-lightbulb"></i></div>
+                <h3>💡 Did You Know?</h3>
+                <div id="funFacts"><p>Loading fascinating facts...</p></div>
+                <div class="h-meta"><span>🧠 Culture tips</span><span>vinCi Facts</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== COUNTRY GRID ===== -->
+    <section class="countries-section" id="countriesSection">
+        <div class="container">
+            <h2 class="section-title">Explore All Cultures</h2>
+            <p class="section-sub">Click any card to dive deep into a country's way of life.</p>
+            <div class="country-grid" id="countryGrid"></div>
+        </div>
+    </section>
+
+    <!-- ===== COUNTRY DETAIL MODAL ===== -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal" id="detailModalContent">
+            <button class="modal-close" id="detailCloseBtn"><i class="fas fa-times"></i></button>
+            <div id="detailBody"></div>
+
+            <div class="modal-ad-box" id="modalAdBox">
+                <div class="ad-left">
+                    <i class="fas fa-shield-alt"></i>
+                    <div class="ad-text">
+                        🔒 Protect your privacy &amp; access global content
+                        <small>VPN · Virtual Numbers · Social Accounts</small>
+                    </div>
+                </div>
+                <a href="#" class="ad-btn" target="_blank">Get Deals <i class="fas fa-external-link-alt"></i></a>
+            </div>
+
+            <div class="pdf-actions">
+                <button class="btn" id="downloadPdfBtn"><i class="fas fa-file-pdf"></i> Download PDF</button>
+                <button class="btn btn-outline" id="viewTextBtn"><i class="fas fa-align-left"></i> View as Text</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== POPUP AD ===== -->
+    <div class="popup-overlay" id="popupAd">
+        <div class="popup-card">
+            <button class="popup-close" id="popupClose"><i class="fas fa-times"></i></button>
+            <div class="popup-icon"><i class="fas fa-gift"></i></div>
+            <h3>🔥 Special Offer!</h3>
+            <p>
+                Get <strong>20% off</strong> on all virtual numbers, social accounts, and VPN plans.
+                Use code <strong>VINCI20</strong> at checkout.
+            </p>
+            <a href="#" class="popup-btn" target="_blank">Claim Now</a>
+            <button class="popup-skip" id="popupSkip">No thanks, maybe later</button>
+        </div>
+    </div>
+
+    <!-- ===== AUTH MODAL ===== -->
+    <div class="auth-overlay" id="authModal">
+        <div class="auth-modal">
+            <button class="auth-close" id="authCloseBtn"><i class="fas fa-times"></i></button>
+            <div class="auth-logo">
+                <div class="logo-icon" style="margin:0 auto 10px; width:56px; height:56px; font-size:2rem;">🌍</div>
+                <h3>vinCi</h3>
+                <p id="authToggleText">Sign in to save your preferences</p>
+            </div>
+            <div class="error-msg" id="authError"></div>
+            <form id="authForm" autocomplete="off">
+                <div class="form-group" id="nameGroup">
+                    <label for="authName">Full Name</label>
+                    <input type="text" id="authName" placeholder="Your name" />
+                </div>
+                <div class="form-group">
+                    <label for="authEmail">Email</label>
+                    <input type="email" id="authEmail" placeholder="you@example.com" required />
+                </div>
+                <div class="form-group">
+                    <label for="authPassword">Password</label>
+                    <input type="password" id="authPassword" placeholder="••••••••" required minlength="4" />
+                </div>
+                <button type="submit" class="btn" id="authSubmitBtn">
+                    <i class="fas fa-arrow-right"></i> <span id="authSubmitText">Sign Up</span>
+                </button>
+            </form>
+            <div class="auth-toggle">
+                <span id="authToggleMessage">Already have an account?</span>
+                <button id="authToggleBtn">Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SCROLL TO TOP ===== -->
+    <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-brand">vinCi <span>✦</span> Country Lifestyles</div>
+            <p style="margin-top:6px;">Explore · Learn · Connect · &copy; 2026 vinCi</p>
+        </div>
+    </footer>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script>
+        // ============================================================
+        // ADVERTISEMENTS DATA (links can be replaced)
+        // ============================================================
+        const adverts = [{
+            id: 'ad-number',
+            icon: 'fa-phone-alt',
+            title: '🌐 Virtual Numbers',
+            desc: 'Get US, UK, CA, AU numbers for SMS verification. Perfect for accounts & privacy.',
+            cta: 'Get Number',
+            link: '#' // replace with actual URL
+        }, {
+            id: 'ad-social',
+            icon: 'fa-users',
+            title: '📱 Social Accounts',
+            desc: 'Buy verified FB, Instagram, Twitter, TikTok accounts. Aged & instant delivery.',
+            cta: 'Shop Accounts',
+            link: '#' // replace
+        }, {
+            id: 'ad-vpn',
+            icon: 'fa-shield-virus',
+            title: '🔒 Premium VPN',
+            desc: 'High-speed VPN with 90+ countries. Protect your identity and access global content.',
+            cta: 'Start VPN',
+            link: '#' // replace
+        }];
+
+        // ============================================================
+        // COUNTRY DATA (100+)
+        // ============================================================
+        const countryBaseList = [
+            { id: 'usa', name: 'United States', flag: '🇺🇸', capital: 'Washington, D.C.', population: '331M', language: 'English', currency: 'USD' },
+            { id: 'china', name: 'China', flag: '🇨🇳', capital: 'Beijing', population: '1.41B', language: 'Mandarin', currency: 'CNY' },
+            { id: 'india', name: 'India', flag: '🇮🇳', capital: 'New Delhi', population: '1.4B', language: 'Hindi, English', currency: 'INR' },
+            { id: 'japan', name: 'Japan', flag: '🇯🇵', capital: 'Tokyo', population: '125M', language: 'Japanese', currency: 'JPY' },
+            { id: 'brazil', name: 'Brazil', flag: '🇧🇷', capital: 'Brasília', population: '216M', language: 'Portuguese', currency: 'BRL' },
+            { id: 'uk', name: 'United Kingdom', flag: '🇬🇧', capital: 'London', population: '67M', language: 'English', currency: 'GBP' },
+            { id: 'france', name: 'France', flag: '🇫🇷', capital: 'Paris', population: '68M', language: 'French', currency: 'EUR' },
+            { id: 'germany', name: 'Germany', flag: '🇩🇪', capital: 'Berlin', population: '83M', language: 'German', currency: 'EUR' },
+            { id: 'italy', name: 'Italy', flag: '🇮🇹', capital: 'Rome', population: '59M', language: 'Italian', currency: 'EUR' },
+            { id: 'mexico', name: 'Mexico', flag: '🇲🇽', capital: 'Mexico City', population: '129M', language: 'Spanish', currency: 'MXN' },
+            { id: 'canada', name: 'Canada', flag: '🇨🇦', capital: 'Ottawa', population: '38M', language: 'English, French', currency: 'CAD' },
+            { id: 'australia', name: 'Australia', flag: '🇦🇺', capital: 'Canberra', population: '26M', language: 'English', currency: 'AUD' },
+            { id: 'russia', name: 'Russia', flag: '🇷🇺', capital: 'Moscow', population: '144M', language: 'Russian', currency: 'RUB' },
+            { id: 'southkorea', name: 'South Korea', flag: '🇰🇷', capital: 'Seoul', population: '52M', language: 'Korean', currency: 'KRW' },
+            { id: 'spain', name: 'Spain', flag: '🇪🇸', capital: 'Madrid', population: '47M', language: 'Spanish', currency: 'EUR' },
+            { id: 'indonesia', name: 'Indonesia', flag: '🇮🇩', capital: 'Jakarta', population: '276M', language: 'Indonesian', currency: 'IDR' },
+            { id: 'turkey', name: 'Turkey', flag: '🇹🇷', capital: 'Ankara', population: '85M', language: 'Turkish', currency: 'TRY' },
+            { id: 'iran', name: 'Iran', flag: '🇮🇷', capital: 'Tehran', population: '88M', language: 'Persian', currency: 'IRR' },
+            { id: 'thailand', name: 'Thailand', flag: '🇹🇭', capital: 'Bangkok', population: '70M', language: 'Thai', currency: 'THB' },
+            { id: 'egypt', name: 'Egypt', flag: '🇪🇬', capital: 'Cairo', population: '104M', language: 'Arabic', currency: 'EGP' },
+            { id: 'southafrica', name: 'South Africa', flag: '🇿🇦', capital: 'Pretoria', population: '60M', language: 'Zulu, English', currency: 'ZAR' },
+            { id: 'nigeria', name: 'Nigeria', flag: '🇳🇬', capital: 'Abuja', population: '223M', language: 'English, Yoruba', currency: 'NGN' },
+            { id: 'pakistan', name: 'Pakistan', flag: '🇵🇰', capital: 'Islamabad', population: '231M', language: 'Urdu, English', currency: 'PKR' },
+            { id: 'bangladesh', name: 'Bangladesh', flag: '🇧🇩', capital: 'Dhaka', population: '169M', language: 'Bengali', currency: 'BDT' },
+            { id: 'vietnam', name: 'Vietnam', flag: '🇻🇳', capital: 'Hanoi', population: '98M', language: 'Vietnamese', currency: 'VND' },
+            { id: 'philippines', name: 'Philippines', flag: '🇵🇭', capital: 'Manila', population: '111M', language: 'Filipino, English', currency: 'PHP' },
+            { id: 'netherlands', name: 'Netherlands', flag: '🇳🇱', capital: 'Amsterdam', population: '17M', language: 'Dutch', currency: 'EUR' },
+            { id: 'saudiarabia', name: 'Saudi Arabia', flag: '🇸🇦', capital: 'Riyadh', population: '36M', language: 'Arabic', currency: 'SAR' },
+            { id: 'uae', name: 'UAE', flag: '🇦🇪', capital: 'Abu Dhabi', population: '10M', language: 'Arabic', currency: 'AED' },
+            { id: 'argentina', name: 'Argentina', flag: '🇦🇷', capital: 'Buenos Aires', population: '45M', language: 'Spanish', currency: 'ARS' },
+            { id: 'poland', name: 'Poland', flag: '🇵🇱', capital: 'Warsaw', population: '38M', language: 'Polish', currency: 'PLN' },
+            { id: 'ukraine', name: 'Ukraine', flag: '🇺🇦', capital: 'Kyiv', population: '41M', language: 'Ukrainian', currency: 'UAH' },
+            { id: 'malaysia', name: 'Malaysia', flag: '🇲🇾', capital: 'Kuala Lumpur', population: '33M', language: 'Malay', currency: 'MYR' },
+            { id: 'singapore', name: 'Singapore', flag: '🇸🇬', capital: 'Singapore', population: '5.6M', language: 'English, Chinese', currency: 'SGD' },
+            { id: 'israel', name: 'Israel', flag: '🇮🇱', capital: 'Jerusalem', population: '9.3M', language: 'Hebrew', currency: 'ILS' },
+            { id: 'sweden', name: 'Sweden', flag: '🇸🇪', capital: 'Stockholm', population: '10.4M', language: 'Swedish', currency: 'SEK' },
+            { id: 'norway', name: 'Norway', flag: '🇳🇴', capital: 'Oslo', population: '5.4M', language: 'Norwegian', currency: 'NOK' },
+            { id: 'switzerland', name: 'Switzerland', flag: '🇨🇭', capital: 'Bern', population: '8.7M', language: 'German, French', currency: 'CHF' },
+            { id: 'austria', name: 'Austria', flag: '🇦🇹', capital: 'Vienna', population: '9M', language: 'German', currency: 'EUR' },
+            { id: 'belgium', name: 'Belgium', flag: '🇧🇪', capital: 'Brussels', population: '11.5M', language: 'Dutch, French', currency: 'EUR' },
+            { id: 'greece', name: 'Greece', flag: '🇬🇷', capital: 'Athens', population: '10.3M', language: 'Greek', currency: 'EUR' },
+            { id: 'portugal', name: 'Portugal', flag: '🇵🇹', capital: 'Lisbon', population: '10.3M', language: 'Portuguese', currency: 'EUR' },
+            { id: 'ireland', name: 'Ireland', flag: '🇮🇪', capital: 'Dublin', population: '5M', language: 'English, Irish', currency: 'EUR' },
+            { id: 'newzealand', name: 'New Zealand', flag: '🇳🇿', capital: 'Wellington', population: '5.1M', language: 'English', currency: 'NZD' },
+            { id: 'colombia', name: 'Colombia', flag: '🇨🇴', capital: 'Bogotá', population: '52M', language: 'Spanish', currency: 'COP' },
+            { id: 'chile', name: 'Chile', flag: '🇨🇱', capital: 'Santiago', population: '19M', language: 'Spanish', currency: 'CLP' },
+            { id: 'peru', name: 'Peru', flag: '🇵🇪', capital: 'Lima', population: '33M', language: 'Spanish', currency: 'PEN' },
+            { id: 'kenya', name: 'Kenya', flag: '🇰🇪', capital: 'Nairobi', population: '55M', language: 'Swahili, English', currency: 'KES' },
+            { id: 'ghana', name: 'Ghana', flag: '🇬🇭', capital: 'Accra', population: '32M', language: 'English', currency: 'GHS' },
+            { id: 'morocco', name: 'Morocco', flag: '🇲🇦', capital: 'Rabat', population: '37M', language: 'Arabic, Berber', currency: 'MAD' },
+            { id: 'algeria', name: 'Algeria', flag: '🇩🇿', capital: 'Algiers', population: '44M', language: 'Arabic, Berber', currency: 'DZD' },
+            { id: 'tanzania', name: 'Tanzania', flag: '🇹🇿', capital: 'Dodoma', population: '63M', language: 'Swahili, English', currency: 'TZS' },
+            { id: 'uganda', name: 'Uganda', flag: '🇺🇬', capital: 'Kampala', population: '47M', language: 'English, Swahili', currency: 'UGX' },
+            { id: 'iraq', name: 'Iraq', flag: '🇮🇶', capital: 'Baghdad', population: '42M', language: 'Arabic, Kurdish', currency: 'IQD' },
+            { id: 'afghanistan', name: 'Afghanistan', flag: '🇦🇫', capital: 'Kabul', population: '41M', language: 'Pashto, Dari', currency: 'AFN' },
+            { id: 'nepal', name: 'Nepal', flag: '🇳🇵', capital: 'Kathmandu', population: '30M', language: 'Nepali', currency: 'NPR' },
+            { id: 'srilanka', name: 'Sri Lanka', flag: '🇱🇰', capital: 'Sri Jayawardenepura Kotte', population: '22M', language: 'Sinhala, Tamil', currency: 'LKR' },
+            { id: 'myanmar', name: 'Myanmar', flag: '🇲🇲', capital: 'Naypyidaw', population: '54M', language: 'Burmese', currency: 'MMK' },
+            { id: 'cambodia', name: 'Cambodia', flag: '🇰🇭', capital: 'Phnom Penh', population: '17M', language: 'Khmer', currency: 'KHR' },
+            { id: 'laos', name: 'Laos', flag: '🇱🇦', capital: 'Vientiane', population: '7.5M', language: 'Lao', currency: 'LAK' },
+            { id: 'mongolia', name: 'Mongolia', flag: '🇲🇳', capital: 'Ulaanbaatar', population: '3.3M', language: 'Mongolian', currency: 'MNT' },
+            { id: 'kazakhstan', name: 'Kazakhstan', flag: '🇰🇿', capital: 'Astana', population: '19M', language: 'Kazakh, Russian', currency: 'KZT' },
+            { id: 'uzbekistan', name: 'Uzbekistan', flag: '🇺🇿', capital: 'Tashkent', population: '34M', language: 'Uzbek', currency: 'UZS' },
+            { id: 'turkm', name: 'Turkmenistan', flag: '🇹🇲', capital: 'Ashgabat', population: '6.5M', language: 'Turkmen', currency: 'TMT' },
+            { id: 'belarus', name: 'Belarus', flag: '🇧🇾', capital: 'Minsk', population: '9.2M', language: 'Belarusian', currency: 'BYN' },
+            { id: 'romania', name: 'Romania', flag: '🇷🇴', capital: 'Bucharest', population: '19M', language: 'Romanian', currency: 'RON' },
+            { id: 'bulgaria', name: 'Bulgaria', flag: '🇧🇬', capital: 'Sofia', population: '6.8M', language: 'Bulgarian', currency: 'BGN' },
+            { id: 'serbia', name: 'Serbia', flag: '🇷🇸', capital: 'Belgrade', population: '6.7M', language: 'Serbian', currency: 'RSD' },
+            { id: 'croatia', name: 'Croatia', flag: '🇭🇷', capital: 'Zagreb', population: '3.9M', language: 'Croatian', currency: 'EUR' },
+            { id: 'slovenia', name: 'Slovenia', flag: '🇸🇮', capital: 'Ljubljana', population: '2.1M', language: 'Slovene', currency: 'EUR' },
+            { id: 'slovakia', name: 'Slovakia', flag: '🇸🇰', capital: 'Bratislava', population: '5.4M', language: 'Slovak', currency: 'EUR' },
+            { id: 'czech', name: 'Czechia', flag: '🇨🇿', capital: 'Prague', population: '10.5M', language: 'Czech', currency: 'CZK' },
+            { id: 'hungary', name: 'Hungary', flag: '🇭🇺', capital: 'Budapest', population: '9.6M', language: 'Hungarian', currency: 'HUF' },
+            { id: 'finland', name: 'Finland', flag: '🇫🇮', capital: 'Helsinki', population: '5.5M', language: 'Finnish', currency: 'EUR' },
+            { id: 'denmark', name: 'Denmark', flag: '🇩🇰', capital: 'Copenhagen', population: '5.9M', language: 'Danish', currency: 'DKK' },
+            { id: 'iceland', name: 'Iceland', flag: '🇮🇸', capital: 'Reykjavik', population: '376K', language: 'Icelandic', currency: 'ISK' },
+            { id: 'panama', name: 'Panama', flag: '🇵🇦', capital: 'Panama City', population: '4.4M', language: 'Spanish', currency: 'PAB' },
+            { id: 'costarica', name: 'Costa Rica', flag: '🇨🇷', capital: 'San José', population: '5.1M', language: 'Spanish', currency: 'CRC' },
+            { id: 'cuba', name: 'Cuba', flag: '🇨🇺', capital: 'Havana', population: '11.2M', language: 'Spanish', currency: 'CUP' },
+            { id: 'dominican', name: 'Dominican Republic', flag: '🇩🇴', capital: 'Santo Domingo', population: '11.2M', language: 'Spanish', currency: 'DOP' },
+            { id: 'puertorico', name: 'Puerto Rico', flag: '🇵🇷', capital: 'San Juan', population: '3.2M', language: 'Spanish, English', currency: 'USD' },
+            { id: 'jamaica', name: 'Jamaica', flag: '🇯🇲', capital: 'Kingston', population: '2.8M', language: 'English', currency: 'JMD' },
+            { id: 'bahamas', name: 'Bahamas', flag: '🇧🇸', capital: 'Nassau', population: '409K', language: 'English', currency: 'BSD' },
+            { id: 'fiji', name: 'Fiji', flag: '🇫🇯', capital: 'Suva', population: '936K', language: 'English, Fijian', currency: 'FJD' },
+            { id: 'samoa', name: 'Samoa', flag: '🇼🇸', capital: 'Apia', population: '218K', language: 'Samoan', currency: 'WST' },
+            { id: 'tonga', name: 'Tonga', flag: '🇹🇴', capital: 'Nukuʻalofa', population: '106K', language: 'Tongan', currency: 'TOP' },
+            { id: 'maldives', name: 'Maldives', flag: '🇲🇻', capital: 'Malé', population: '515K', language: 'Dhivehi', currency: 'MVR' },
+            { id: 'bhutan', name: 'Bhutan', flag: '🇧🇹', capital: 'Thimphu', population: '787K', language: 'Dzongkha', currency: 'BTN' },
+            { id: 'brunei', name: 'Brunei', flag: '🇧🇳', capital: 'Bandar Seri Begawan', population: '452K', language: 'Malay', currency: 'BND' },
+            { id: 'monaco', name: 'Monaco', flag: '🇲🇨', capital: 'Monaco', population: '36K', language: 'French', currency: 'EUR' },
+            { id: 'luxembourg', name: 'Luxembourg', flag: '🇱🇺', capital: 'Luxembourg', population: '654K', language: 'Luxembourgish', currency: 'EUR' },
+            { id: 'malta', name: 'Malta', flag: '🇲🇹', capital: 'Valletta', population: '526K', language: 'Maltese, English', currency: 'EUR' },
+            { id: 'cyprus', name: 'Cyprus', flag: '🇨🇾', capital: 'Nicosia', population: '1.2M', language: 'Greek, Turkish', currency: 'EUR' },
+            { id: 'estonia', name: 'Estonia', flag: '🇪🇪', capital: 'Tallinn', population: '1.3M', language: 'Estonian', currency: 'EUR' },
+            { id: 'latvia', name: 'Latvia', flag: '🇱🇻', capital: 'Riga', population: '1.8M', language: 'Latvian', currency: 'EUR' },
+            { id: 'lithuania', name: 'Lithuania', flag: '🇱🇹', capital: 'Vilnius', population: '2.7M', language: 'Lithuanian', currency: 'EUR' },
+            { id: 'georgia', name: 'Georgia', flag: '🇬🇪', capital: 'Tbilisi', population: '3.7M', language: 'Georgian', currency: 'GEL' },
+            { id: 'armenia', name: 'Armenia', flag: '🇦🇲', capital: 'Yerevan', population: '2.8M', language: 'Armenian', currency: 'AMD' },
+            { id: 'azerbaijan', name: 'Azerbaijan', flag: '🇦🇿', capital: 'Baku', population: '10.1M', language: 'Azerbaijani', currency: 'AZN' },
+            { id: 'kyrgyzstan', name: 'Kyrgyzstan', flag: '🇰🇬', capital: 'Bishkek', population: '6.7M', language: 'Kyrgyz, Russian', currency: 'KGS' },
+            { id: 'tajikistan', name: 'Tajikistan', flag: '🇹🇯', capital: 'Dushanbe', population: '10M', language: 'Tajik', currency: 'TJS' },
+            { id: 'mauritius', name: 'Mauritius', flag: '🇲🇺', capital: 'Port Louis', population: '1.2M', language: 'English, French', currency: 'MUR' },
+            { id: 'seychelles', name: 'Seychelles', flag: '🇸🇨', capital: 'Victoria', population: '107K', language: 'Seychellois Creole', currency: 'SCR' },
+            { id: 'botswana', name: 'Botswana', flag: '🇧🇼', capital: 'Gaborone', population: '2.6M', language: 'Setswana, English', currency: 'BWP' },
+            { id: 'namibia', name: 'Namibia', flag: '🇳🇦', capital: 'Windhoek', population: '2.6M', language: 'English', currency: 'NAD' },
+            { id: 'zambia', name: 'Zambia', flag: '🇿🇲', capital: 'Lusaka', population: '20M', language: 'English', currency: 'ZMW' },
+            { id: 'zimbabwe', name: 'Zimbabwe', flag: '🇿🇼', capital: 'Harare', population: '16M', language: 'English', currency: 'ZWL' }
+        ];
+
+        // ============================================================
+        // CONTENT GENERATORS
+        // ============================================================
+        function generateDetails(c, idx) {
+            const name = c.name, capital = c.capital, lang = c.language;
+            const pick = (arr) => arr[idx % arr.length];
+            const overviews = [
+                `${name} is a land of profound contrasts and vibrant energy. From the bustling streets of ${capital} to the serene rural landscapes, it offers a unique blend of ancient traditions and modern innovation. The country's rich history is woven into its daily life, making it a fascinating place for cultural exploration.`,
+                `Welcome to ${name}, a country that effortlessly combines natural beauty with dynamic urban centers. ${capital} serves as the pulsating heart of the nation, a hub of commerce, art, and culinary excellence. Whether you're drawn to its historical landmarks or its contemporary lifestyle, ${name} promises an unforgettable experience.`,
+                `${name} stands as a testament to cultural resilience and diversity. With a population that cherishes its heritage while eagerly embracing the future, it is a nation of storytellers, creators, and visionaries. The spirit of ${name} is best experienced through its festivals, cuisine, and the warmth of its people.`
+            ];
+            const dating = [
+                `Dating in ${name} is a beautiful fusion of tradition and modernity. In ${capital}, young professionals often turn to dating apps like Tinder and Bumble, while in rural areas, family-introduced matches remain common. A typical date might involve a stroll through a historical quarter, a coffee at a chic café, or a sunset dinner overlooking the city. Romance here is often subtle, yet deeply passionate.`,
+                `The dating scene in ${name} varies widely by region. Urban dwellers in ${capital} enjoy a cosmopolitan approach, with a focus on shared interests and careers. Meanwhile, traditional values hold sway in the countryside, where courtship is a more formal affair. Regardless of the setting, genuine connection and family approval are highly valued in ${name}.`,
+                `Love in ${name} is expressed through grand gestures and quiet moments alike. From the bustling markets to the serene temples, couples find endless ways to bond. It's common for men to present flowers or chocolates, while women may showcase their culinary skills. The dating culture is evolving, with a growing emphasis on equality and mutual respect.`
+            ];
+            const housing = [
+                `Housing in ${name} reflects its economic diversity. In ${capital}, sleek high-rise apartments with panoramic views are highly sought after, commanding premium prices. However, in the suburbs and villages, one can find charming, spacious homes with gardens, often built with local materials. The government has recently initiated several affordable housing projects to address urban migration.`,
+                `From colonial-era mansions to minimalist modern lofts, ${name} offers a wide spectrum of housing options. The real estate market in ${capital} is highly competitive, with a growing trend towards sustainable and smart home technologies. For those seeking tranquility, the coastal and rural areas provide idyllic retreats at a fraction of the city cost.`,
+                `The architecture of ${name} is a testament to its history. In cities, you'll find a mix of glass towers and colonial buildings. In the countryside, traditional houses constructed from wood and stone are common. The housing market is dynamic, with a rising middle class driving demand for quality, modern amenities.`
+            ];
+            const lifestyle = [
+                `Life in ${name} is a vibrant tapestry of work and leisure. The weekdays are often fast-paced, especially in ${capital}, where business and industry thrive. However, weekends are sacred, reserved for family gatherings, outdoor activities, and culinary adventures. There's a strong appreciation for the arts, with theaters, galleries, and music festivals being integral to the social fabric.`,
+                `The ${name} lifestyle is characterized by a deep connection to community and nature. Mornings might start with a local brew, followed by a day of meaningful work. Evenings are for socializing, whether at a bustling food market or a quiet family dinner. The pace of life is deliberately balanced, emphasizing health, happiness, and hospitality.`,
+                `In ${name}, life is lived with passion and purpose. The people are known for their resilience and joie de vivre. Sports, particularly football or cricket, are a major unifier. The country boasts a rich calendar of cultural events, celebrating everything from harvests to historical milestones, ensuring that there's always something to look forward to.`
+            ];
+            const food = [
+                `${name}ese cuisine is a sensory explosion, characterized by bold flavors and fresh ingredients. Staple dishes often include rice, beans, and a variety of meats or seafood, seasoned with aromatic spices. Street food culture is massive, offering everything from savory snacks to sweet delicacies. A traditional meal is a communal affair, meant to be savored and shared.`,
+                `The culinary landscape of ${name} is as diverse as its people. From the fiery curries of the south to the hearty stews of the north, there is a dish for every palate. ${capital} is a melting pot of global and local flavors, boasting numerous Michelin-starred restaurants and lively food trucks. Don't miss trying the signature national dish, which perfectly encapsulates the country's rich heritage.`,
+                `Food is at the heart of ${name}'s culture. Meals are often elaborate, featuring multiple courses and a variety of textures. The use of locally sourced herbs, spices, and vegetables is paramount. Whether it's a festive banquet or a simple home-cooked meal, the emphasis is always on quality, flavor, and the joy of eating together.`
+            ];
+            const traditions = [
+                `${name} is a country with deeply rooted traditions that permeate every aspect of life. Festivals are celebrated with immense fervor, featuring colorful parades, traditional music, and intricate dances. Respect for elders and ancestors is a cornerstone of society, reflected in daily rituals and annual ceremonies. These customs are proudly passed down through generations, keeping the culture alive.`,
+                `The cultural heritage of ${name} is rich and multifaceted. Traditional attire, often adorned with intricate patterns, is still worn during significant events. Craftsmanship, such as pottery, weaving, and woodcarving, is highly esteemed. The country's calendar is dotted with unique celebrations that offer a fascinating glimpse into its soul, blending ancient beliefs with contemporary joy.`,
+                `In ${name}, tradition is not just a memory but a living practice. From the way people greet each other to the elaborate wedding ceremonies, customs are observed with great pride. Storytelling, poetry, and music are vital forms of preserving history. The nation's spiritual and philosophical values are beautifully expressed through its art, architecture, and communal gatherings.`
+            ];
+            const movies = [
+                `🎬 <strong>Eternal ${capital}</strong> (2023) - A poignant love story set against the backdrop of ${capital}'s architectural wonders, exploring themes of memory and identity.<br>🎬 <strong>The ${name} Dream</strong> (2021) - A cinematic masterpiece that follows the lives of three generations, capturing the spirit of change and resilience in ${name}.<br>🎬 <strong>Whispers of the ${lang} Language</strong> (2024) - A critically acclaimed drama that delves into the nuances of communication and cultural preservation.`
+            ];
+            const news = [
+                `📰 <strong>${capital} Cultural Summit 2026:</strong> ${name} announces a massive investment in arts and culture, aiming to position ${capital} as a global creative hub.<br>📰 <strong>Green Revolution in ${name}:</strong> New policies drive a 30% increase in renewable energy adoption, setting a benchmark for sustainable development.<br>📰 <strong>${name} & International Relations:</strong> ${name} signs a landmark trade agreement with key partners, boosting economic growth and cultural exchange.`
+            ];
+            return {
+                overview: pick(overviews),
+                dating: pick(dating),
+                housing: pick(housing),
+                lifestyle: pick(lifestyle),
+                food: pick(food),
+                traditions: pick(traditions),
+                movies: pick(movies),
+                news: pick(news)
+            };
+        }
+
+        // ============================================================
+        // BUILD FINAL DATASET
+        // ============================================================
+        const countries = countryBaseList.map((c, idx) => {
+            const details = generateDetails(c, idx);
+            const imgSeed = `${c.id}-${idx}`;
+            return {
+                ...c,
+                ...details,
+                // Add extra media fields for sidebar
+                videoId: ['dQw4w9WgXcQ', 'tgbNymZ7vqY', '3JZ_D3ELwOQ', 'L_jWHffIx5E', 'fJ9rUzIMcZQ'][idx % 5],
+                documentary: [
+                    'https://www.nationalgeographic.com/travel',
+                    'https://www.bbc.com/travel',
+                    'https://www.lonelyplanet.com',
+                    'https://www.cntraveler.com',
+                    'https://www.worldtravelguide.net'
+                ][idx % 5],
+                images: [
+                    `https://picsum.photos/seed/${imgSeed}1/400/300`,
+                    `https://picsum.photos/seed/${imgSeed}2/400/300`,
+                    `https://picsum.photos/seed/${imgSeed}3/400/300`
+                ]
+            };
+        });
+
+        // ============================================================
+        // STATE & DOM REFS
+        // ============================================================
+        let currentUser = null;
+        let isSignUp = true;
+        let currentCountryId = null;
+        let currentTab = 'overview';
+        let sidebarOpen = false;
+        let selectedSidebarCountry = null;
+
+        const $ = id => document.getElementById(id);
+        const countryGrid = $('countryGrid');
+        const detailModal = $('detailModal');
+        const detailBody = $('detailBody');
+        const detailCloseBtn = $('detailCloseBtn');
+        const authModal = $('authModal');
+        const authCloseBtn = $('authCloseBtn');
+        const authForm = $('authForm');
+        const authToggleBtn = $('authToggleBtn');
+        const authToggleText = $('authToggleText');
+        const authToggleMessage = $('authToggleMessage');
+        const authSubmitText = $('authSubmitText');
+        const authSubmitBtn = $('authSubmitBtn');
+        const authError = $('authError');
+        const authName = $('authName');
+        const authEmail = $('authEmail');
+        const authPassword = $('authPassword');
+        const nameGroup = $('nameGroup');
+        const signInBtn = $('signInBtn');
+        const signUpBtn = $('signUpBtn');
+        const authButtons = $('authButtons');
+        const userBadge = $('userBadge');
+        const userName = $('userName');
+        const userAvatar = $('userAvatar');
+        const logoutBtn = $('logoutBtn');
+        const themeToggle = $('themeToggle');
+        const countryCount = $('countryCount');
+        const downloadPdfBtn = $('downloadPdfBtn');
+        const viewTextBtn = $('viewTextBtn');
+        const logoLink = $('logoLink');
+        const countrySearch = $('countrySearch');
+        const trendingNews = $('trendingNews');
+        const cinemaPicks = $('cinemaPicks');
+        const funFacts = $('funFacts');
+        const modalAdBox = $('modalAdBox');
+        const scrollTopBtn = $('scrollTopBtn');
+
+        // Sidebar elements
+        const sidebar = $('sidebar');
+        const sidebarOverlay = $('sidebarOverlay');
+        const sidebarClose = $('sidebarClose');
+        const hamburgerBtn = $('hamburgerBtn');
+        const sidebarCountryList = $('sidebarCountryList');
+        const mediaPanel = $('mediaPanel');
+        const mediaImages = $('mediaImages');
+        const mediaVideo = $('mediaVideo');
+        const mediaDocs = $('mediaDocs');
+        const sidebarSignInBtn = $('sidebarSignInBtn');
+
+        // ============================================================
+        // SIDEBAR FUNCTIONS
+        // ============================================================
+        function openSidebar() {
+            sidebar.classList.add('open');
+            sidebarOverlay.classList.add('active');
+            sidebarOpen = true;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('active');
+            sidebarOpen = false;
+            document.body.style.overflow = '';
+        }
+
+        function toggleSidebar() {
+            if (sidebarOpen) closeSidebar();
+            else openSidebar();
+        }
+
+        function renderSidebarCountries() {
+            const list = countries.slice(0, 20); // show first 20 for brevity
+            sidebarCountryList.innerHTML = list.map(c => `
+                <div class="country-item" data-id="${c.id}">
+                    <span class="flag">${c.flag}</span>
+                    <span class="name">${c.name}</span>
+                </div>
+            `).join('');
+
+            sidebarCountryList.querySelectorAll('.country-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    const id = el.dataset.id;
+                    const c = countries.find(d => d.id === id);
+                    if (c) {
+                        selectedSidebarCountry = c;
+                        // highlight active
+                        sidebarCountryList.querySelectorAll('.country-item').forEach(item => item.classList.remove('active'));
+                        el.classList.add('active');
+                        renderMediaPanel(c);
+                    }
+                });
+            });
+        }
+
+        function renderMediaPanel(c) {
+            mediaPanel.classList.add('active');
+
+            // Images
+            mediaImages.innerHTML = c.images.map(img => `
+                <img src="${img}" alt="${c.name}" loading="lazy" onerror="this.src='https://picsum.photos/seed/${c.id}/400/300'" />
+            `).join('');
+
+            // Video (YouTube embed)
+            const videoUrl = `https://www.youtube.com/embed/${c.videoId}?autoplay=0&rel=0`;
+            mediaVideo.innerHTML = `
+                <iframe src="${videoUrl}" frameborder="0" allowfullscreen></iframe>
+            `;
+
+            // Documentaries
+            mediaDocs.innerHTML = `
+                <a href="${c.documentary}" target="_blank">📘 National Geographic</a>
+                <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(c.name)}" target="_blank">📖 Wikipedia</a>
+                <a href="https://www.bbc.com/search?q=${encodeURIComponent(c.name)}" target="_blank">📰 BBC Travel</a>
+            `;
+        }
+
+        // ============================================================
+        // RENDER FUNCTIONS
+        // ============================================================
+        function renderCountries(filter = '') {
+            const term = filter.toLowerCase().trim();
+            const filtered = countries.filter(c => c.name.toLowerCase().includes(term));
+
+            if (filtered.length === 0) {
+                countryGrid.innerHTML =
+                    `<div style="grid-column:1/-1; text-align:center; padding:60px 0; color:var(--text-muted);">
+                        <i class="fas fa-search" style="font-size:2rem; display:block; margin-bottom:12px;"></i>
+                        <h3>No countries found</h3>
+                        <p>Try adjusting your search term.</p>
+                    </div>`;
+                countryCount.textContent = 0;
+                return;
+            }
+
+            let html = '';
+            const adCycle = adverts;
+            let adIndex = 0;
+            const totalCountries = filtered.length;
+
+            for (let i = 0; i < totalCountries; i++) {
+                const c = filtered[i];
+                html += `
+                    <div class="country-card" data-id="${c.id}" data-name="${c.name.toLowerCase()}">
+                        <img class="card-img" src="${c.images[0]}" alt="${c.name}" loading="lazy" onerror="this.src='https://picsum.photos/seed/${c.id}/800/600'" />
+                        <div class="card-body">
+                            <span class="flag">${c.flag}</span>
+                            <h3>${c.name}</h3>
+                            <div class="sub">${c.overview.slice(0, 80)}…</div>
+                        </div>
+                        <span class="card-tag">${c.language}</span>
+                    </div>
+                `;
+
+                if ((i + 1) % 8 === 0 && i < totalCountries - 1) {
+                    const ad = adCycle[adIndex % adCycle.length];
+                    adIndex++;
+                    html += `
+                        <div class="ad-card" onclick="window.open('${ad.link}', '_blank')">
+                            <span class="ad-badge-tag">📢 SPONSORED</span>
+                            <div class="ad-icon"><i class="fas ${ad.icon}"></i></div>
+                            <div class="ad-title">${ad.title}</div>
+                            <div class="ad-desc">${ad.desc}</div>
+                            <span class="ad-label">${ad.cta} →</span>
+                        </div>
+                    `;
+                }
+            }
+
+            if (totalCountries > 3 && totalCountries % 8 !== 0) {
+                const ad = adCycle[adIndex % adCycle.length];
+                if (adIndex < adCycle.length * 2) {
+                    html += `
+                        <div class="ad-card" onclick="window.open('${ad.link}', '_blank')">
+                            <span class="ad-badge-tag">📢 SPONSORED</span>
+                            <div class="ad-icon"><i class="fas ${ad.icon}"></i></div>
+                            <div class="ad-title">${ad.title}</div>
+                            <div class="ad-desc">${ad.desc}</div>
+                            <span class="ad-label">${ad.cta} →</span>
+                        </div>
+                    `;
+                }
+            }
+
+            countryGrid.innerHTML = html;
+
+            document.querySelectorAll('.country-card').forEach(el => {
+                el.addEventListener('click', () => {
+                    const id = el.dataset.id;
+                    openDetail(id);
+                });
+            });
+
+            countryCount.textContent = totalCountries;
+        }
+
+        function renderHighlights() {
+            const shuffled = [...countries].sort(() => 0.5 - Math.random());
+            const picks = shuffled.slice(0, 3);
+
+            trendingNews.innerHTML = picks.map(c =>
+                `<p style="margin-bottom:10px;">${c.news.split('<br>')[0]}</p>`
+            ).join('');
+
+            cinemaPicks.innerHTML = picks.map(c => {
+                const movieLine = c.movies.split('<br>')[0];
+                return `<p style="margin-bottom:10px;">${movieLine}</p>`;
+            }).join('');
+
+            funFacts.innerHTML = picks.map(c => {
+                const facts = [
+                    `The capital city of ${c.name} is ${c.capital}.`,
+                    `${c.name} has a population of over ${c.population}.`,
+                    `The official language(s) of ${c.name} include ${c.language}.`,
+                    `${c.name} uses the ${c.currency} as its currency.`
+                ];
+                return `<p style="margin-bottom:6px;">✅ ${facts[c.idx % 4]}</p>`;
+            }).join('');
+        }
+
+        // ============================================================
+        // DETAIL MODAL
+        // ============================================================
+        function openDetail(id) {
+            const c = countries.find(d => d.id === id);
+            if (!c) return;
+            currentCountryId = id;
+            currentTab = 'overview';
+            renderDetail(c);
+            detailModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function renderDetail(c) {
+            const tabs = ['overview', 'dating', 'housing', 'lifestyle', 'food', 'traditions', 'movies', 'news'];
+            const labels = {
+                overview: 'Overview',
+                dating: 'Dating',
+                housing: 'Housing',
+                lifestyle: 'Lifestyle',
+                food: 'Food',
+                traditions: 'Traditions',
+                movies: 'Movies 🎬',
+                news: 'News 📰'
+            };
+
+            const galleryHtml = c.images.map(img =>
+                `<img src="${img}" alt="${c.name}" loading="lazy" onerror="this.src='https://picsum.photos/seed/${c.id}/800/600'" />`
+            ).join('');
+
+            const tabContentHtml = tabs.map(tab => `
+                <div class="tab-content ${tab === 'overview' ? 'active' : ''}" data-tab="${tab}">
+                    ${tab === 'overview' ? `
+                        <p>${c.overview}</p>
+                        <div class="gallery">${galleryHtml}</div>
+                    ` : tab === 'movies' ? `
+                        <p>${c.movies}</p>
+                    ` : tab === 'news' ? `
+                        <p>${c.news}</p>
+                    ` : `
+                        <h4>${labels[tab]} in ${c.name}</h4>
+                        <p>${c[tab]}</p>
+                    `}
+                </div>
+            `).join('');
+
+            detailBody.innerHTML = `
+                <div class="country-header">
+                    <span class="flag-big">${c.flag}</span>
+                    <h2>${c.name}</h2>
+                </div>
+                <div class="country-meta">
+                    <span><i class="fas fa-city"></i> ${c.capital}</span>
+                    <span><i class="fas fa-users"></i> ${c.population}</span>
+                    <span><i class="fas fa-language"></i> ${c.language}</span>
+                    <span><i class="fas fa-coins"></i> ${c.currency}</span>
+                </div>
+
+                <div class="tabs" id="detailTabs">
+                    ${tabs.map(tab => `
+                        <button class="${tab === 'overview' ? 'active' : ''}" data-tab="${tab}">
+                            ${labels[tab]}
+                        </button>
+                    `).join('')}
+                </div>
+
+                <div id="tabContainer">
+                    ${tabContentHtml}
+                </div>
+            `;
+
+            document.querySelectorAll('#detailTabs button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.dataset.tab;
+                    currentTab = tab;
+                    document.querySelectorAll('#detailTabs button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.querySelectorAll('#tabContainer .tab-content').forEach(el => {
+                        el.classList.toggle('active', el.dataset.tab === tab);
+                    });
+                });
+            });
+        }
+
+        function closeDetail() {
+            detailModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // ============================================================
+        // PDF & TEXT
+        // ============================================================
+        async function generatePdf() {
+            const c = countries.find(d => d.id === currentCountryId);
+            if (!c) return;
+            const container = document.createElement('div');
+            container.className = 'pdf-export-content';
+            container.style.position = 'fixed';
+            container.style.left = '-9999px';
+            container.style.top = '0';
+            container.style.width = '700px';
+            container.style.background = '#fff';
+            container.style.padding = '40px';
+            container.style.borderRadius = '16px';
+            container.style.zIndex = '-1';
+
+            const tabs = ['overview', 'dating', 'housing', 'lifestyle', 'food', 'traditions', 'movies', 'news'];
+            const labels = {
+                overview: 'Overview',
+                dating: 'Dating',
+                housing: 'Housing',
+                lifestyle: 'Lifestyle',
+                food: 'Food',
+                traditions: 'Traditions',
+                movies: 'Movies',
+                news: 'News'
+            };
+            const sectionsHtml = tabs.map(tab => `
+                <div class="pdf-section">
+                    <h4>${labels[tab]}</h4>
+                    <p>${c[tab]}</p>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="pdf-title">${c.flag} ${c.name}</div>
+                <div class="pdf-sub">Complete lifestyle guide · vinCi</div>
+                <div class="pdf-meta">
+                    <span>🏛️ ${c.capital}</span>
+                    <span>👥 ${c.population}</span>
+                    <span>🗣️ ${c.language}</span>
+                    <span>💰 ${c.currency}</span>
+                </div>
+                ${sectionsHtml}
+                <p style="margin-top:24px;font-size:0.8rem;color:#888;border-top:1px solid #eee;padding-top:16px;">
+                    Generated by vinCi · Country Lifestyles
+                </p>
+            `;
+            document.body.appendChild(container);
+
+            try {
+                const canvas = await html2canvas(container, { scale: 2, useCORS: true, backgroundColor: '#ffffff',
+                    logging: false });
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+                const pdfWidth = 210;
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                let heightLeft = pdfHeight, position = 0;
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                heightLeft -= pdfHeight;
+                while (heightLeft > 0) {
+                    position = heightLeft - pdfHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                    heightLeft -= pdfHeight;
+                }
+                pdf.save(`${c.name}-lifestyle-guide.pdf`);
+            } catch (err) { console.error(err); alert('PDF generation failed.'); } finally { document.body.removeChild(
+                    container); }
+        }
+
+        function viewAsText() {
+            const c = countries.find(d => d.id === currentCountryId);
+            if (!c) return;
+            const tabs = ['overview', 'dating', 'housing', 'lifestyle', 'food', 'traditions', 'movies', 'news'];
+            const labels = {
+                overview: 'Overview',
+                dating: 'Dating',
+                housing: 'Housing',
+                lifestyle: 'Lifestyle',
+                food: 'Food',
+                traditions: 'Traditions',
+                movies: 'Movies',
+                news: 'News'
+            };
+            let text = `${c.flag} ${c.name.toUpperCase()}\n${'='.repeat(50)}\n`;
+            text +=
+                `Capital: ${c.capital}  |  Population: ${c.population}  |  Language: ${c.language}  |  Currency: ${c.currency}\n\n`;
+            tabs.forEach(tab => {
+                text += `${labels[tab].toUpperCase()}\n${'-'.repeat(40)}\n${c[tab]}\n\n`;
+            });
+            text += `\n— Generated by vinCi · Country Lifestyles —`;
+            const win = window.open('', '_blank');
+            if (win) {
+                win.document.write(
+                    `<pre style="font-family:system-ui, sans-serif;max-width:700px;margin:40px auto;padding:24px;background:#f8f8fc;border-radius:16px;line-height:1.8;font-size:15px;color:#1a1a2e;">${text}</pre>`
+                    );
+                win.document.title = `${c.name} · Lifestyle Guide`;
+            } else alert('Please allow popups.');
+        }
+
+        // ============================================================
+        // AUTH
+        // ============================================================
+        function loadUser() {
+            const saved = localStorage.getItem('vinCi_user');
+            if (saved) { try { currentUser = JSON.parse(saved); updateUIForUser(); } catch { currentUser = null; } }
+        }
+
+        function saveUser(user) { localStorage.setItem('vinCi_user', JSON.stringify(user)); currentUser = user;
+            updateUIForUser(); }
+
+        function logoutUser() { localStorage.removeItem('vinCi_user'); currentUser = null; updateUIForUser(); closeAuth(); }
+
+        function updateUIForUser() {
+            if (currentUser) {
+                authButtons.style.display = 'none';
+                userBadge.style.display = 'flex';
+                userName.textContent = currentUser.name || 'User';
+                userAvatar.textContent = (currentUser.name || 'U')[0].toUpperCase();
+                // update sidebar
+                sidebarSignInBtn.textContent = `👤 ${currentUser.name}`;
+                sidebarSignInBtn.style.background = 'var(--accent)';
+                sidebarSignInBtn.style.color = '#fff';
+            } else {
+                authButtons.style.display = 'flex';
+                userBadge.style.display = 'none';
+                sidebarSignInBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                sidebarSignInBtn.style.background = '';
+                sidebarSignInBtn.style.color = '';
+            }
+        }
+
+        function openAuth(mode) {
+            isSignUp = mode === 'signup';
+            authModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            updateAuthForm();
+            authError.style.display = 'none';
+            authForm.reset();
+        }
+
+        function closeAuth() { authModal.classList.remove('active'); document.body.style.overflow = ''; }
+
+        function updateAuthForm() {
+            if (isSignUp) {
+                nameGroup.style.display = 'block';
+                authSubmitText.textContent = 'Sign Up';
+                authSubmitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+                authToggleText.textContent = 'Create your free account';
+                authToggleMessage.textContent = 'Already have an account?';
+                authToggleBtn.textContent = 'Sign In';
+            } else {
+                nameGroup.style.display = 'none';
+                authSubmitText.textContent = 'Sign In';
+                authSubmitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                authToggleText.textContent = 'Welcome back';
+                authToggleMessage.textContent = "Don't have an account?";
+                authToggleBtn.textContent = 'Sign Up';
+            }
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = authEmail.value.trim(),
+                password = authPassword.value.trim(),
+                name = authName.value.trim();
+            if (!email || !password) { showAuthError('All fields required.'); return; }
+            if (isSignUp && !name) { showAuthError('Enter your name.'); return; }
+            if (password.length < 4) { showAuthError('Password min 4 chars.'); return; }
+            if (isSignUp) {
+                if (localStorage.getItem(`vinCi_user_${email}`)) { showAuthError('Email already registered.'); return; }
+                localStorage.setItem(`vinCi_user_${email}`, JSON.stringify({ email, name, password }));
+                saveUser({ email, name });
+                closeAuth();
+            } else {
+                const stored = localStorage.getItem(`vinCi_user_${email}`);
+                if (!stored) { showAuthError('Account not found. Sign up first.'); return; }
+                try {
+                    const user = JSON.parse(stored);
+                    if (user.password !== password) { showAuthError('Wrong password.'); return; }
+                    saveUser({ email, name: user.name });
+                    closeAuth();
+                } catch { showAuthError('Error. Try again.'); }
+            }
+        }
+
+        function showAuthError(msg) { authError.textContent = msg; authError.style.display = 'block'; }
+
+        // ============================================================
+        // THEME
+        // ============================================================
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('vinCi_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+
+        function loadTheme() {
+            if (localStorage.getItem('vinCi_theme') === 'light') document.body.classList.add('light-mode');
+            else document.body.classList.remove('light-mode');
+        }
+
+        // ============================================================
+        // POPUP AD
+        // ============================================================
+        function showPopup() { $('popupAd').classList.add('active'); }
+
+        function closePopup() { $('popupAd').classList.remove('active'); }
+
+        // ============================================================
+        // SCROLL TO TOP
+        // ============================================================
+        function handleScroll() {
+            if (window.scrollY > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        }
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        countrySearch.addEventListener('input', (e) => renderCountries(e.target.value));
+
+        function init() {
+            loadTheme();
+            loadUser();
+            renderCountries();
+            renderHighlights();
+            renderSidebarCountries();
+
+            // Sidebar events
+            hamburgerBtn.addEventListener('click', toggleSidebar);
+            sidebarClose.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+            sidebarSignInBtn.addEventListener('click', () => {
+                closeSidebar();
+                openAuth('signin');
+            });
+
+            // Detail modal
+            detailCloseBtn.addEventListener('click', closeDetail);
+            detailModal.addEventListener('click', (e) => { if (e.target === detailModal) closeDetail(); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDetail(); });
+
+            // Auth
+            signInBtn.addEventListener('click', () => openAuth('signin'));
+            signUpBtn.addEventListener('click', () => openAuth('signup'));
+            authCloseBtn.addEventListener('click', closeAuth);
+            authModal.addEventListener('click', (e) => { if (e.target === authModal) closeAuth(); });
+            authToggleBtn.addEventListener('click', () => { isSignUp = !isSignUp; updateAuthForm(); authError.style.display =
+                    'none'; authForm.reset(); });
+            authForm.addEventListener('submit', handleAuthSubmit);
+            logoutBtn.addEventListener('click', logoutUser);
+
+            // Theme
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // PDF & Text
+            downloadPdfBtn.addEventListener('click', generatePdf);
+            viewTextBtn.addEventListener('click', viewAsText);
+
+            // Logo scroll
+            logoLink.addEventListener('click', (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+            // Scroll to top
+            window.addEventListener('scroll', handleScroll);
+            scrollTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Keyboard shortcut theme
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.shiftKey && (e.key === 'T' || e.key === 't')) { e.preventDefault(); toggleTheme(); }
+            });
+
+            // Modal ad link
+            modalAdBox.querySelector('.ad-btn')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.open('#', '_blank');
+            });
+
+            // Popup ad
+            setTimeout(showPopup, 5000);
+            $('popupClose').addEventListener('click', closePopup);
+            $('popupSkip').addEventListener('click', closePopup);
+            $('popupAd').addEventListener('click', (e) => { if (e.target === $('popupAd')) closePopup(); });
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
